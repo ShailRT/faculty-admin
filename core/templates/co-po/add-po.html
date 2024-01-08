@@ -1,0 +1,99 @@
+{% extends 'base-dash.html' %}
+
+{% block content %}
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+
+            <!-- Page Heading -->
+            <h1 class="h3 mb-4 text-gray-800">Program Outcome</h1>
+            <div class="container col-md-12">
+                <div class="row">
+                    <div class="col-12 col-md-12 mb-4">
+                        <div class="card border-left-primary shadow h-100 py-2">
+                            <div class="card-body">
+                                
+                                <form method="GET" class="row g-3">
+                                    <div class="col-md-12">
+                                      <label for="inputState" class="form-label">Programs:</label><br>
+                                      <select data-live-search="true" id="inputState" name="selected_program" class="form-select selectpicker border mb-3">
+                                        
+                                        <option value="{{selected_program.uuid}}" selected>{% if selected_program != '' and selected_program != None %}{{selected_program}}{%else %}Choose...{% endif %}</option>
+                                        {% for program in programs %}
+                                            <option value="{{program}}">{{program}}</option>
+                                        {% endfor %}
+                                      </select>
+                                    </div>
+                                    <div class="col-12">
+                                      <button type="submit" class="btn btn-primary">Submit</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                </div>
+            </div>
+            {% if selected_program != None and selected_program != "" %}
+            <div class="container col-md-12">
+                <div class="row">
+                    <div class="col-12 col-md-12 mb-4">
+                        <div class="card shadow">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">{{selected_program}}</h6>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group">
+                                    {% for po in selected_pos %}
+                                    <li class="list-group-item d-flex align-items-center">PO{{po.number}} - {{po.message}}
+                                        {% comment %} <a href="{% url 'remove-subject' pk=user_subject.uuid %}"><span class="badge bg-danger rounded-pill">X</span></a> {% endcomment %}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                </div>
+                <div class="row">
+                    <div class="col-12 col-md-12 mb-4">
+                        <div class="card shadow">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Add PO {{selected_program}}</h6>
+                            </div>
+                            <div class="card-body">
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <p>
+                                        <label for="id_number">Number:</label>
+                                        <input type="text" class="form-control" name="number" maxlength="2" required="" id="id_number">
+                                        
+                                        
+                                      </p>
+                                      <p>
+                                        <label for="id_message">Message:</label>
+                                        <textarea name="message" class="form-control" cols="40" rows="3" required="" id="id_message"></textarea>
+                                        
+                                        
+                                      </p>
+                                        <input type="hidden" name="program" value="{{selected_program}}" required="" id="id_program">
+                                        
+                                        
+                                          
+                                        
+
+                                    <button type="submit" class="btn btn-primary">Add</button>
+                                </form>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <!-- /.container-fluid -->
+{% endblock content %}

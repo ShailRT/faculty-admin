@@ -1,0 +1,142 @@
+{% extends 'base-dash.html' %}
+{% load custom_tags %}
+
+{% block content %}
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+
+            <!-- Page Heading -->
+            <h1 class="h3 mb-4 text-gray-800">CO/PO Table</h1>
+            <div class="container col-md-12">
+                <div class="row">
+                    <div class="col-12 col-md-12 mb-4">
+                        <div class="card border-left-primary shadow h-100 py-2">
+                            <div class="card-body">
+                                <form method="GET" class="row g-3">
+                                    <div class="col-md-6">
+                                      <label for="inputState" class="form-label">Subject:</label><br>
+                                      <select data-live-search="true" id="inputState" name="subject_uuid" class="form-select js-select border mb-3" required>
+                                        <option value="{% if selected_subject %}{{selected_subject.uuid}}{% endif %}" selected >
+                                            {% if selected_subject %}{{selected_subject.code}}{% else %}Choose...{% endif %}</option>
+                                        {% for subject in subjects %}
+                                        {% if selected_subject %}
+                                            {% if subject != selected_subject %}
+                                        <option value="{{subject.uuid}}">{{subject.code}}</option>
+                                            {% endif %}
+                                        {% else %}
+                                        <option value="{{subject.uuid}}">{{subject.code}}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                      </select>
+                                      
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="inputState" class="form-label">Department:</label><br>
+                                        <select data-live-search="true" id="inputState" name="selected_department" class="form-select js-select border mb-3" required>
+                                          <option value="{% if selected_department %}{{selected_department}}{% endif %}" selected>
+                                              {% if selected_department %}{{selected_department}}{% else %}Choose...{% endif %}</option>
+                                          {% for department in departments %}
+                                          {% if selected_department %}
+                                              {% if department != selected_department %}
+                                          <option value="{{department}}">{{department}}</option>
+                                              {% endif %}
+                                          {% else %}
+                                          <option value="{{department}}">{{department}}</option>
+                                          {% endif %}
+                                          {% endfor %}
+                                        </select>
+                                        
+                                      </div>
+                                    <div class="col-12">
+                                      <button type="submit" class="btn btn-primary">Submit</button>
+                                    </div>
+                                  </form>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                </div>
+            </div>
+            {% if selected_subject %}
+            <div class="container col-md-12">
+                <div class="row">
+                    <div class="col-12 col-md-12 mb-4">
+                        <div class="card shadow">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">{{selected_subject.title}}</h6>
+                                <a href="{% url 'download-table' pk=selected_subject.uuid %}?selected_department={{selected_department}}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
+                                    class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
+                            </div>
+                            <div class="card-body">
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <table class="table table-striped-columns table-bordered">
+                                        <thead>
+                                            
+                                        <tr>
+                                            <th scope="col">#</th>
+                                            {% for co_head in co_po_header %}
+                                                <th scope="col">{{co_head}}</th>
+                                            {% endfor %}
+                                            
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for key, value in co_render_list.items %}
+                                                <tr>
+                                                    <th scope="row">{{key}}</th>
+                                                    {% for po_val in value.PO %}
+                                                        <th scope="row">   
+                                                            <select class="form-control" name="{{key}}_PO{{forloop.counter}}" class="">
+                                                                <option value="{% if po_val != None and po_val != "" %}{{po_val}}{% endif %}">{% if po_val != None and po_val != "" %}{{po_val}}{% else %}0{% endif %}</option>
+                                                                <option value="1">1</option>
+                                                                <option value="2">2</option>
+                                                                <option value="3">3</option>
+                                                            </select>
+                                                        </th>
+                                                    {% endfor %}
+                                                    {% for pso_val in value.PSO %}
+                                                        <th scope="row">   
+                                                            <select class="form-control" name="{{key}}_PSO{{forloop.counter}}" class="">
+                                                                <option value="{% if pso_val != None and pso_val != "" %}{{pso_val}}{% endif %}">{% if pso_val != None and pso_val != "" %}{{pso_val}}{% else %}0{% endif %}</option>
+                                                                <option value="1">1</option>
+                                                                <option value="2">2</option>
+                                                                <option value="3">3</option>
+                                                            </select>
+                                                        </th>
+                                                    {% endfor %}
+                                                    {% for peo_val in value.PEO %}
+                                                        <th scope="row">   
+                                                            <select class="form-control" name="{{key}}_PEO{{forloop.counter}}" class="">
+                                                                <option value="{% if peo_val != None and peo_val != "" %}{{peo_val}}{% endif %}">{% if peo_val != None and peo_val != "" %}{{peo_val}}{% else %}0{% endif %}</option>
+                                                                <option value="1">1</option>
+                                                                <option value="2">2</option>
+                                                                <option value="3">3</option>
+                                                            </select>
+                                                        </th>
+                                                    {% endfor %}
+
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                    <input type="hidden" name="subject_uuid" value="{{selected_subject.uuid}}">
+                                    <input type="hidden" name="selected_department" value="{{selected_department}}">
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+
+                                </form>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <!-- /.container-fluid -->
+
+   
+{% endblock content %}
