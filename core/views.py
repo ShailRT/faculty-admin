@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as auth_login
 from .forms import CustomUserForm, ProgramOutcomeForm
-from .models import Subject, CourseOutcome, ProgramOutcome, ProgramEducationalObjective, ProgramSpecificOutcome, FacultyInfo, College
+from .models import Subject, CourseOutcome, ProgramOutcome, ProgramEducationalObjective, ProgramSpecificOutcome, FacultyInfo, College, AccessRequest
 import json
 import csv
 
@@ -18,7 +18,7 @@ def login(request):
         password = request.POST['password']
         user = authenticate(username=username, password=password)
         if user is not None:
-            if user.is_permitted:
+            if user.is_login_permitted:
                 auth_login(request, user)
                 return redirect('dashboard')
             else:
@@ -232,6 +232,7 @@ def download_table(request, pk):
     response['Content-Disposition'] = f'attachment; filename="{csv_file_name}.csv"'
 
     csv_writer = csv.writer(response)
+
     csv_writer.writerow(list(cos.first().program_outcome_priority.keys())+list(cos.first().program_specific_outcome_priority[selected_department].keys())+list(cos.first().program_educational_objective_priority[selected_department].keys()))
     for co in cos:
         csv_writer.writerow(list(co.program_outcome_priority.values())+list(co.program_specific_outcome_priority[selected_department].values())+list(co.program_educational_objective_priority[selected_department].values()))
@@ -243,4 +244,16 @@ def delete_co(request, pk):
     co.delete()
     subject_uuid = request.GET.get('subject_uuid')
     return redirect(f'/add-co?subject_uuid={subject_uuid}')
+
+def table_edit_request(request):
+    if not AccessRequest.objects.filter(message='TABLE_EDIT_ACCESS', user=request.user).exists():
+        AccessRequest.objects.create(message='TABLE_EDIT_ACCESS', user=request.user)
+        messages.info(request, 'Your request is sent!')
+    else:
+        messages.info(request, 'Your request already exists!')
+
+    subject_uuid = request.GET.get('subject_uuid')
+    selected_department = request.GET.get('selected_department')
+    
+    return redirect(f'/co-po-table?subject_uuid={subject_uuid}&selected_department={selected_department}')
             

@@ -19,4 +19,5 @@ urlpatterns = [
     path('delete-co/<str:pk>/', views.delete_co, name='delete-co'),
 
     path('add-po/', views.add_po, name='add-po'),
+    path('table-edit-request/', views.table_edit_request, name="table-edit-request")
 ]

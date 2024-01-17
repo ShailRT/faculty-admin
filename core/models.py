@@ -5,7 +5,7 @@ import uuid
 department_choices = ( ('IT', 'IT' ), ('CS', 'CS'), ('AI/ML', 'AI/ML'), ('IOT', 'IOT'))
 program_choices = ( ('B.Tech', 'B.Tech' ),)
 college_choices = (('GNIOT','GNIOT'), ('GIMS', 'GIMS'))
-
+request_choices = (('TABLE_EDIT_ACCESS','TABLE_EDIT_ACCESS'), ('USER_LOGIN_ACCESS', 'USER_LOGIN_ACCESS'))
 
 class College(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
@@ -41,10 +41,24 @@ class CustomUser(AbstractUser):
     department = models.CharField(max_length=20, choices=department_choices, null=True, blank=True)
     contact_number = models.CharField(max_length=10, null=True, blank=True)
     subjects = models.ManyToManyField(Subject, blank=True)
-    is_permitted = models.BooleanField(default=False)
-    
+    is_login_permitted = models.BooleanField(default=False)
+    is_editing_table_permitted = models.BooleanField(default=False)
+
     def __str__(self):
         return self.username
+
+class AccessRequest(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
+    message = models.CharField(max_length=20, choices=request_choices)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    is_reviewed = models.BooleanField(default=False)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['is_reviewed', '-date_created']
+
+    def __str__(self):
+        return self.message
 
 class CourseOutcome(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)

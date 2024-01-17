@@ -1,6 +1,8 @@
 {% extends 'base-dash.html' %}
 {% load custom_tags %}
 
+{% block title %}CO Table{% endblock title %}
+
 {% block content %}
 
         <!-- Begin Page Content -->
@@ -88,33 +90,45 @@
                                                 <tr>
                                                     <th scope="row">{{key}}</th>
                                                     {% for po_val in value.PO %}
-                                                        <th scope="row">   
-                                                            <select class="form-control" name="{{key}}_PO{{forloop.counter}}" class="">
-                                                                <option value="{% if po_val != None and po_val != "" %}{{po_val}}{% endif %}">{% if po_val != None and po_val != "" %}{{po_val}}{% else %}0{% endif %}</option>
-                                                                <option value="1">1</option>
-                                                                <option value="2">2</option>
-                                                                <option value="3">3</option>
-                                                            </select>
+                                                        <th scope="row">
+                                                            {% if not user.is_editing_table_permitted %}
+                                                                {% if po_val %}{{po_val}}{% else %}0{% endif %}
+                                                            {% else %}   
+                                                                <select class="form-control" name="{{key}}_PO{{forloop.counter}}" class="">
+                                                                    <option value="{% if po_val != None and po_val != "" %}{{po_val}}{% endif %}">{% if po_val != None and po_val != "" %}{{po_val}}{% else %}0{% endif %}</option>
+                                                                    <option value="1">1</option>
+                                                                    <option value="2">2</option>
+                                                                    <option value="3">3</option>
+                                                                </select>
+                                                            {% endif %}
                                                         </th>
                                                     {% endfor %}
                                                     {% for pso_val in value.PSO %}
-                                                        <th scope="row">   
-                                                            <select class="form-control" name="{{key}}_PSO{{forloop.counter}}" class="">
-                                                                <option value="{% if pso_val != None and pso_val != "" %}{{pso_val}}{% endif %}">{% if pso_val != None and pso_val != "" %}{{pso_val}}{% else %}0{% endif %}</option>
-                                                                <option value="1">1</option>
-                                                                <option value="2">2</option>
-                                                                <option value="3">3</option>
-                                                            </select>
+                                                        <th scope="row">
+                                                            {% if not user.is_editing_table_permitted %}
+                                                                {% if pso_val %}{{pso_val}}{% else %}0{% endif %}
+                                                            {% else %}   
+                                                                <select class="form-control" name="{{key}}_PSO{{forloop.counter}}" class="">
+                                                                    <option value="{% if pso_val != None and pso_val != "" %}{{pso_val}}{% endif %}">{% if pso_val != None and pso_val != "" %}{{pso_val}}{% else %}0{% endif %}</option>
+                                                                    <option value="1">1</option>
+                                                                    <option value="2">2</option>
+                                                                    <option value="3">3</option>
+                                                                </select>
+                                                            {% endif %}
                                                         </th>
                                                     {% endfor %}
                                                     {% for peo_val in value.PEO %}
                                                         <th scope="row">   
-                                                            <select class="form-control" name="{{key}}_PEO{{forloop.counter}}" class="">
-                                                                <option value="{% if peo_val != None and peo_val != "" %}{{peo_val}}{% endif %}">{% if peo_val != None and peo_val != "" %}{{peo_val}}{% else %}0{% endif %}</option>
-                                                                <option value="1">1</option>
-                                                                <option value="2">2</option>
-                                                                <option value="3">3</option>
-                                                            </select>
+                                                            {% if not user.is_editing_table_permitted %}
+                                                                {% if peo_val %}{{peo_val}}{% else %}0{% endif %}
+                                                            {% else %}
+                                                                <select class="form-control" name="{{key}}_PEO{{forloop.counter}}" class="">
+                                                                    <option value="{% if peo_val != None and peo_val != "" %}{{peo_val}}{% endif %}">{% if peo_val != None and peo_val != "" %}{{peo_val}}{% else %}0{% endif %}</option>
+                                                                    <option value="1">1</option>
+                                                                    <option value="2">2</option>
+                                                                    <option value="3">3</option>
+                                                                </select>
+                                                            {% endif %}
                                                         </th>
                                                     {% endfor %}
 
@@ -122,11 +136,19 @@
                                             {% endfor %}
                                         </tbody>
                                     </table>
-                                    <input type="hidden" name="subject_uuid" value="{{selected_subject.uuid}}">
-                                    <input type="hidden" name="selected_department" value="{{selected_department}}">
-                                    <button type="submit" class="btn btn-primary">Submit</button>
-
+                                    {% if user.is_editing_table_permitted %}
+                                        <input type="hidden" name="subject_uuid" value="{{selected_subject.uuid}}">
+                                        <input type="hidden" name="selected_department" value="{{selected_department}}">
+                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                    {% endif %}
                                 </form>
+                                    {% if not user.is_editing_table_permitted %}
+                                        <a data-toggle="modal" data-target="#accessRequestModal">
+                                            <button class="btn btn-primary">Request Edit Access</button>
+                                        </a>
+                                    {% endif %}
+                                
+                                
                             </div>
                         </div>
 
@@ -137,6 +159,43 @@
             {% endif %}
         </div>
         <!-- /.container-fluid -->
+        <div
+      class="modal fade"
+      id="accessRequestModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="accessRequestModal"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Access Request</h5>
+            <button
+              class="close"
+              type="button"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            Select "Send" below if you want to send access request for editing table.
+          </div>
+          <div class="modal-footer">
+            <button
+              class="btn btn-secondary"
+              type="button"
+              data-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <a class="btn btn-primary" href="{% url 'table-edit-request' %}?subject_uuid={{selected_subject.uuid}}&selected_department={{selected_department}}">Send</a>
+          </div>
+        </div>
+      </div>
+    </div>
 
    
 {% endblock content %}
