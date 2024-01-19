@@ -254,6 +254,22 @@ def download_table(request, pk):
                 data[key].append(value)
             else:
                 data[key] = [value]
+    
+    for key, value in data.items():
+        if key == "PO/CO":
+            data[key].append(selected_department)
+        else:
+            denomination = 0
+            total_v = 0
+            for v in value:
+                if v != '' and v != None:
+                    denomination += 1
+                    total_v += int(v)
+            try:
+                avg = round(total_v/denomination,2)
+            except ZeroDivisionError:
+                avg = ''
+            data[key].append(avg)
 
     df = pd.DataFrame(data)
 
