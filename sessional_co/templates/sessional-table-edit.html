@@ -1,0 +1,105 @@
+{% extends 'base-dash.html' %}
+{% load custom_tags %}
+
+{% block title %}CT1 Table{% endblock title %}
+
+{% block content %}
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+
+            <!-- Page Heading -->
+            <h1 class="h3 mb-4 text-gray-800">CT1 Table</h1>
+            <div class="container col-md-12">
+                <div class="row">
+                    <div class="col-12 col-md-12 mb-4">
+                        <div class="card shadow">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Sessional Table - {{field|upper}}</h6>
+                            </div>
+                            <div class="card-body">
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <table class="table table-striped-columns table-bordered">
+                                        <thead>
+                                            
+                                        <tr>
+                                            <th scope="col">#</th>
+                                            {% for header in table_header %}
+                                            <th scope="col">{{header}}</th>
+                                            {% endfor %}
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for key, value in table_body.items %}
+                                                <tr>
+                                                    <th scope="row">{{key}}</th>
+                                                    {% for v in value %}
+                                                        <th scope="row">
+                                                                <input class="form-control" name="CO{{forloop.counter}}_{{key}}" type="text" value="{{v}}"/>
+                                                        </th>
+                                                    {% endfor %}
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                    {% comment %} {% if user.is_editing_table_permitted %} {% endcomment %}
+                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                    {% comment %} {% endif %} {% endcomment %}
+                                </form>
+                                    {% comment %} {% if not user.is_editing_table_permitted %} {% endcomment %}
+                                        {% comment %} <a data-toggle="modal" data-target="#accessRequestModal">
+                                            <button class="btn btn-primary">Request Edit Access</button>
+                                        </a> {% endcomment %}
+                                    {% comment %} {% endif %} {% endcomment %}
+                                
+                                
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        <!-- /.container-fluid -->
+        <div
+      class="modal fade"
+      id="accessRequestModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="accessRequestModal"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Access Request</h5>
+            <button
+              class="close"
+              type="button"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            Select "Send" below if you want to send access request for editing table.
+          </div>
+          <div class="modal-footer">
+            <button
+              class="btn btn-secondary"
+              type="button"
+              data-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <a class="btn btn-primary" href="{% url 'table-edit-request' %}?subject_uuid={{selected_subject.uuid}}&selected_department={{selected_department}}">Send</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+   
+{% endblock content %}

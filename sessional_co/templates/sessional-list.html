@@ -1,0 +1,99 @@
+{% extends 'base-dash.html' %} {% block title %}Sessional Table{% endblock title %} {% block content %}
+
+<!-- Begin Page Content -->
+<div class="container-fluid">
+  <!-- Page Heading -->
+  <h1 class="h3 mb-4 text-gray-800">Sessional Table</h1>
+  <div class="container col-md-12">
+    <div class="row">
+      <div class="col-12 col-md-12 mb-4">
+        <div class="card shadow">
+          <div class="card-header py-3 d-flex flex-rowjustify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">
+              Create Sessional Table
+            </h6>
+          </div>
+          <div class="card-body">
+            <h4></h4>
+            <form method="POST">
+              {% csrf_token %}
+              <div class="container-fluid">
+                <div class="row">
+                  <div class="col-6">
+                    <label for="id_session" class="form-label">Session:</label>
+                    <input type="text" class="form-control" name="session" maxlength="8" required="" id="id_session" />
+                  </div>
+                  <div class="col-6">
+                    <label for="inputState" class="form-label">Semester:</label><br />
+                    <select id="inputState" name="semester" class="form-control border">
+                      <option class="active">Choose...</option>
+                      <option>1st</option>
+                      <option>2nd</option>
+                      <option>3rd</option>
+                      <option>4th</option>
+                      <option>5th</option>
+                      <option>6th</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-6">
+                    <label for="id_student_list">Students:</label>
+                    <textarea name="student_list" class="form-control" cols="40" rows="3" required=""
+                      id="id_student_list"></textarea>
+                  </div>
+                  <div class="col-6">
+                    <label for="inputState" class="form-label">Subjects:</label><br />
+                    <select data-live-search="true" id="inputState" name="subject_uuid"
+                      class="form-select selectpicker border mb-3 w-100">
+                      {% for subject in subjects %}
+                      <option value="{{subject.uuid}}">{{subject.code}}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary">Add</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container col-md-12">
+    <div class="row">
+      <div class="col-12 col-md-12 mb-4">
+        <div class="card shadow">
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">
+              {{selected_subject.title}}
+            </h6>
+          </div>
+          <div class="card-body">
+            <ul class="list-group">
+              {% for sessional in sessionals %}
+              <li class="list-group-item d-flex align-items-center justify-content-between">
+                {{sessional.session}}
+                <div>
+                  <a href="{% url 'sessional-table-edit' pk=sessional.uuid field='ct1' %}"><span
+                      class="badge bg-primary rounded-pill text-white p-2">CT1</span></a>
+                  <a href="{% url 'sessional-table-edit' pk=sessional.uuid field='ct2' %}"><span
+                      class="badge bg-primary rounded-pill text-white p-2">CT2</span></a>
+                  <a href="{% url 'sessional-table-edit' pk=sessional.uuid field='put' %}"><span
+                      class="badge bg-primary rounded-pill text-white p-2">PUT</span></a>
+                  <a href="{% url 'sessional-table-edit' pk=sessional.uuid field='assignment_tutorial' %}"><span
+                      class="badge bg-primary rounded-pill text-white p-2">ASSIGNMENT/TUTORIAL</span></a>
+                </div>
+              </li>
+                {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /.container-fluid -->
+
+{% endblock content %}

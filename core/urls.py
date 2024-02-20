@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 from django.contrib.auth import views as auth_views
 
@@ -19,5 +19,7 @@ urlpatterns = [
     path('delete-co/<str:pk>/', views.delete_co, name='delete-co'),
 
     path('add-po/', views.add_po, name='add-po'),
-    path('table-edit-request/', views.table_edit_request, name="table-edit-request")
+    path('table-edit-request/', views.table_edit_request, name="table-edit-request"),
+
+    path('sessional-table/', include('sessional_co.urls'))
 ]
