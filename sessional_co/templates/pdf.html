@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+</head>
+<body>
+    <style>
+        {% comment %} td {
+            border: solid 1px black;
+        }
+     {% endcomment %}
+    </style>
+    <table class="table">
+        <thead>
+          <tr>
+            <td>#</td>
+            {% for co in cos %}
+                <td>CO{{co.number}}_CT1</td>
+                <td>CO{{co.number}}_CT2</td>
+                <td>CO{{co.number}}_PUT</td>
+                <td>CO{{co.number}}_A/T</td>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+            {% for key, value in data.items %}
+
+            <tr> 
+                <td>{{key}}</td>
+            {% for ke, val in value.items %}
+                {% for k, v in val.items %}
+                <td>{% if v != '' %}{{v}}{% else %}0{%endif%}</td>
+                {% endfor %}
+            {% endfor %}
+            </tr> 
+        {% endfor %}
+      </table>
+    
+</body>
+</html>

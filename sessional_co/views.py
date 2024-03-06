@@ -9,7 +9,11 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER
 import pandas as pd
 import json
-from datetime import datetime 
+from datetime import datetime
+from .helpers import save_pdf 
+from django.http import FileResponse
+from django.conf import settings
+import os
 
 def sessional_list(request):
     if request.method == "POST":
@@ -199,3 +203,62 @@ def sessional_table_download(request, pk):
     
     # return response   
 
+def test_pdf(request, pk):
+    sessional = SessionalTable.objects.filter(uuid=pk).first()
+    cos = CourseOutcome.objects.filter(subject=sessional.subject)
+    data = {}
+    for no in sessional.student_info.keys():
+        data[no] = {}
+    
+    for key, value in sessional.ct1.items():
+        for k, v in value.items():
+            try:
+                data[k][key]['ct1'] = v
+            except KeyError:
+                data[k][key] = {}
+                data[k][key]['ct1'] = v
+    
+    for key, value in sessional.ct2.items():
+        for k, v in value.items():
+            try:
+                data[k][key]['ct2'] = v
+            except KeyError:
+                data[k][key] = {}
+                data[k][key]['ct2'] = v
+
+    for key, value in sessional.put.items():
+        for k, v in value.items():
+            try:
+                data[k][key]['put'] = v
+            except KeyError:
+                data[k][key] = {}
+                data[k][key]['put'] = v
+    
+    for key, value in sessional.assignment_tutorial.items():
+        for k, v in value.items():
+            try:
+                data[k][key]['a/t'] = v
+            except KeyError:
+                data[k][key] = {}
+                data[k][key]['a/t'] = v
+    
+    params = {
+        'cos': cos,
+        'data': data,
+    }
+
+    file_name, status = save_pdf(params)
+
+    pdf_path = settings.BASE_DIR / f'pdf/{file_name}.pdf'
+    # Ensure the file exists
+        # Open the file for reading
+    with open(pdf_path, 'rb') as pdf_file:
+        response = HttpResponse(pdf_file.read(), content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+        return response
+    print('''
+///////
+          
+          ''')
+    print(pdf_path)
+    return redirect('/')
