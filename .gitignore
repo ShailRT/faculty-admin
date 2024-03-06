@@ -6,6 +6,7 @@ __pycache__
 
 
 
+
 # Backup files # 
 *.bak 
 
@@ -22,6 +23,7 @@ __pycache__
 
 # Generated files
 .idea/**/contentModel.xml
+*.pdf
 
 # Sensitive or high-churn files
 .idea/**/dataSources/
