@@ -1,7 +1,7 @@
 {% extends 'base-dash.html' %}
 {% load custom_tags %}
 
-{% block title %}CT1 Table{% endblock title %}
+{% block title %}{{subject.title|capfirst}} Table{% endblock title %}
 
 {% block content %}
 
@@ -9,7 +9,7 @@
         <div class="container-fluid">
 
             <!-- Page Heading -->
-            <h1 class="h3 mb-4 text-gray-800">CT1 Table</h1>
+            <h1 class="h3 mb-4 text-gray-800">{{subject.title|capfirst}} ({{subject.code|upper}})</h1>
             <div class="container col-md-12">
                 <div class="row">
                     <div class="col-12 col-md-12 mb-4">
@@ -24,9 +24,14 @@
                                         <thead>
                                             
                                         <tr>
-                                            <th scope="col">#</th>
-                                            {% for header in table_header %}
-                                            <th scope="col">{{header}}</th>
+                                            <th scope="col">Student Roll No.</th>
+                                            {% for key, value in max_marks.items %}
+                                            <th scope="col">
+                                              <div class="d-flex align-items-center">
+                                                {{key}} MM =
+                                                <input class="form-control w-50 ml-2" name="{{key}}_maxmarks" type="number" value="{{value}}" placeholder="Maximum Marks"/>
+                                              </div>
+                                            </th>
                                             {% endfor %}
                                         </tr>
                                         </thead>
@@ -36,22 +41,22 @@
                                                     <th scope="row">{{key}}</th>
                                                     {% for v in value %}
                                                         <th scope="row">
-                                                                <input class="form-control" name="CO{{forloop.counter}}_{{key}}" type="text" value="{{v}}"/>
+                                                                <input class="form-control" name="CO{{forloop.counter}}_{{key}}" type="number" value="{{v}}" min="0" max="30"/>
                                                         </th>
                                                     {% endfor %}
                                                 </tr>
                                             {% endfor %}
                                         </tbody>
                                     </table>
-                                    {% comment %} {% if user.is_editing_table_permitted %} {% endcomment %}
+                                    {% if user.is_sessional_table_editing_permitted %}
                                         <button type="submit" class="btn btn-primary">Submit</button>
-                                    {% comment %} {% endif %} {% endcomment %}
+                                    {% endif %}
                                 </form>
-                                    {% comment %} {% if not user.is_editing_table_permitted %} {% endcomment %}
-                                        {% comment %} <a data-toggle="modal" data-target="#accessRequestModal">
+                                    {% if not user.is_sessional_table_editing_permitted %}
+                                        <a data-toggle="modal" data-target="#accessRequestModal">
                                             <button class="btn btn-primary">Request Edit Access</button>
-                                        </a> {% endcomment %}
-                                    {% comment %} {% endif %} {% endcomment %}
+                                        </a>
+                                    {% endif %}
                                 
                                 
                             </div>
@@ -95,7 +100,7 @@
             >
               Cancel
             </button>
-            <a class="btn btn-primary" href="{% url 'table-edit-request' %}?subject_uuid={{selected_subject.uuid}}&selected_department={{selected_department}}">Send</a>
+            <a class="btn btn-primary" href="{% url 'sessional-table-edit-request' %}?table_uuid={{table_uuid}}&field={{field}}">Send</a>
           </div>
         </div>
       </div>

@@ -14,6 +14,8 @@ import json
 import csv
 import pandas as pd
 from datetime import datetime 
+from xhtml2pdf import pisa
+from django.template.loader import get_template
 
 department_choices = ('IT','CS','AI/ML','IOT')
 college_choices = ('GNIOT', 'GIMS')
@@ -257,7 +259,7 @@ def download_table(request, pk):
     
     for key, value in data.items():
         if key == "PO/CO":
-            data[key].append(selected_department)
+            data[key].append("AVG")
         else:
             denomination = 0
             total_v = 0
@@ -270,6 +272,30 @@ def download_table(request, pk):
             except ZeroDivisionError:
                 avg = ''
             data[key].append(avg)
+
+    params = {
+        'data': data,
+        'subject': subject,
+        'key_range' : range(len(data.keys())),
+        'value_range' : range(len(data[next(iter(data))])),
+    }
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f"filename='{subject.code}-COPO-Table.pdf'"
+
+    template = get_template('co-po-pdf.html')
+
+    html = template.render(params)
+
+    pisa_status = pisa.CreatePDF(
+        html, dest=response
+    )
+
+    if pisa_status.err:
+        return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
+
+
 
     df = pd.DataFrame(data)
 

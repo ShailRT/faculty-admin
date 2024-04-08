@@ -15,6 +15,7 @@ class SessionalTable(models.Model):
     ct2 = models.JSONField(blank=True, null=True)
     put = models.JSONField(blank=True, null=True)
     assignment_tutorial = models.JSONField(blank=True, null=True)
+    max_marks = models.JSONField(blank=True, null=True)
     date_created = models.DateTimeField(auto_now_add=True)
 
     class Meta:

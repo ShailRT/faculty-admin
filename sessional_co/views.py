@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect, HttpResponse
 from django.contrib import messages
-from core.models import Subject, CourseOutcome
+from core.models import Subject, CourseOutcome, AccessRequest
 from .models import SessionalTable
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Spacer, Paragraph
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Spacer, Paragraph, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER
 import pandas as pd
@@ -14,6 +14,10 @@ from .helpers import save_pdf
 from django.http import FileResponse
 from django.conf import settings
 import os
+
+from xhtml2pdf import pisa
+from django.template.loader import get_template
+
 
 def sessional_list(request):
     if request.method == "POST":
@@ -26,7 +30,14 @@ def sessional_list(request):
         
         cos = CourseOutcome.objects.filter(subject=subject)
         co_json = {}
+        max_marks = {}
         for co in cos:
+            max_marks[f'CO{co.number}'] = {
+                'ct1': 0, 
+                'ct2': 0, 
+                'put': 0, 
+                'ant': 0, 
+            }
             co_json[f"CO{co.number}"] = {}
             for student in student_json.keys():
                 co_json[f"CO{co.number}"][student] = ''
@@ -34,7 +45,7 @@ def sessional_list(request):
         try:
             sessional = SessionalTable.objects.create(faculty=request.user,
                 session=request.POST['session'], semester=request.POST['semester'], student_info=student_json, subject=subject,
-                ct1=co_json, ct2=co_json, put=co_json, assignment_tutorial=co_json)
+                ct1=co_json, ct2=co_json, put=co_json, assignment_tutorial=co_json, max_marks=max_marks)
             messages.info(request, 'Table Created')
         except:
             print()
@@ -49,13 +60,14 @@ def sessional_list(request):
 
 def sessional_table_edit(request, pk, field):
     table = SessionalTable.objects.filter(uuid=pk).first()
+    subject = table.subject
     if field == 'ct1':
         table_dict = table.ct1
     elif field == 'ct2':
         table_dict = table.ct2
     elif field == 'put':
         table_dict = table.put
-    elif field == 'assignment_tutorial':
+    elif field == 'ant':
         table_dict = table.assignment_tutorial
 
     table_header = table_dict.keys()
@@ -67,10 +79,17 @@ def sessional_table_edit(request, pk, field):
                 table_body[k].append(v)
             except:
                 table_body[k] = [v]
+    max_marks = {}
+    for key, value in table.max_marks.items():
+        max_marks[key] =  value[field] 
+    
     context = {
         'table_header': table_header,
         'table_body': table_body,
         'field': field,
+        'subject': subject,
+        'table_uuid': table.uuid,
+        'max_marks': max_marks,
     }
 
     if request.method == "POST":
@@ -88,120 +107,17 @@ def sessional_table_edit(request, pk, field):
             for v in value.keys():
                 table_dict[key][v] = request.POST[f'{key}_{v}']
         
-        table.save()
+        for key in table.max_marks.keys():
+            table.max_marks[key][field] = int(request.POST[f'{key}_maxmarks'])
+        try:
+            table.save()
+            messages.info(request, 'Table Updated!')
+        except Exception as e: 
+            print(e)
         return redirect('sessional-table-edit', pk=pk, field=field)
     
     return render(request, 'sessional-table-edit.html', context)
 
-def sessional_table_download(request, pk):
-    sessional = SessionalTable.objects.filter(uuid=pk).first()
-    cos = CourseOutcome.objects.filter(subject=sessional.subject)
-    data = {
-        'Student': sessional.student_info
-    }
-
-    for co in cos:
-        data[f'CO{co.number}'] = {'CT1':{},
-                                  'CT2':{},
-                                  'PUT':{},
-                                  'A/T':{},}
-
-    for key, value in sessional.ct1.items():
-        for k, v in value.items():
-            # add validation
-            if v =='':
-                data[key]['CT1'][k] = 0
-            else:
-                data[key]['CT1'][k] = v
-    
-    for key, value in sessional.ct2.items():
-        for k, v in value.items():
-            # add validation
-            if v =='':
-                data[key]['CT2'][k] = 0
-            else:
-                data[key]['CT2'][k] = v
-        
-    for key, value in sessional.put.items():
-        for k, v in value.items():
-            # add validation
-            if v =='':
-                data[key]['PUT'][k] = 0
-            else:
-                data[key]['PUT'][k] = v
-
-    for key, value in sessional.assignment_tutorial.items():
-        for k, v in value.items():
-            # add validation
-            if v =='':
-                data[key]['A/T'][k] = 0
-            else:
-                data[key]['A/T'][k] = v
-    
-            
-    print(data)
-    df = pd.DataFrame(data)    
-
-    
-
-    
-
-    # df = pd.DataFrame(data)
-
-    current_datetime = datetime.now().strftime('%d_%H-%M-%S')
-
-    pdf_file_name = f'table-{sessional.subject.code}-{current_datetime}.pdf'
-    pdf = SimpleDocTemplate(pdf_file_name, pagesize=letter)
-
-    table_data = [df.columns.to_list()] + df.values.tolist()
-
-    table = Table(table_data)
-
-    # style = TableStyle([
-    #     ('BACKGROUND', (0, 0), (-1, 0), colors.grey),  # Header background color
-    #     ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),  # Header text color
-    #     ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Center align all cells
-    #     ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Grid lines
-    #     ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Header font bold
-    #     ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  # Header bottom padding
-    #     ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),  # Body font
-    #     ('FONTSIZE', (0, 0), (-1, -1), 8),  # Font size
-    #     ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),  # Inner grid lines
-    #     ('BOX', (0, 0), (-1, -1), 0.25, colors.black),  # Outer border
-    # ])
-    # table.setStyle(style)
-
-    # Add a centered heading above the table
-    heading = "Sessional Table"
-    heading_style = ParagraphStyle(
-        'Heading1',
-        parent=getSampleStyleSheet()['Heading1'],
-        alignment=TA_CENTER,
-    )
-    heading_paragraph = Paragraph(heading, heading_style)
-    elements = [heading_paragraph, Spacer(1, 12), table]
-
-    # Build the PDF document
-    pdf.build(elements)
-
-
-    with open(pdf_file_name, 'rb') as pdf_file:
-        response = HttpResponse(pdf_file.read(), content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="{pdf_file_name}"'
-        return response
-    
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f'attachment; filename="{pdf_file_name}.csv"'
-
-    # csv_writer = csv.writer(response)
-
-    # csv_writer.writerow(list(cos.first().program_outcome_priority.keys())+list(cos.first().program_specific_outcome_priority[selected_department].keys())+list(cos.first().program_educational_objective_priority[selected_department].keys()))
-    # for co in cos:
-    #     csv_writer.writerow(list(co.program_outcome_priority.values())+list(co.program_specific_outcome_priority[selected_department].values())+list(co.program_educational_objective_priority[selected_department].values()))
-    
-    # df.to_csv(response, index=False)
-    
-    # return response   
 
 def test_pdf(request, pk):
     sessional = SessionalTable.objects.filter(uuid=pk).first()
@@ -241,24 +157,59 @@ def test_pdf(request, pk):
             except KeyError:
                 data[k][key] = {}
                 data[k][key]['a/t'] = v
-    
+
+    max_marks = {}
+    for key, value in sessional.max_marks.items():
+        max_marks[key] = sum(value.values())
+    for key, value in data.items():
+        for ke, val in value.items():
+            total = 0
+            for k, v in val.items():
+                if v!='':
+                    total+=int(v)
+                else:
+                    total+=0
+            if total == 0 or max_marks[ke] == 0:
+                value[ke]['percentage'] = 0
+            else:
+                value[ke]['percentage'] = round((total/max_marks[ke])*100, 2)
+            
     params = {
         'cos': cos,
         'data': data,
+        'table_session': sessional.session, 
+        'table_semester': sessional.semester,
+        'table_odd_or_even': 'Odd' if int(sessional.semester[0])%2==1 else 'Even',
+        'table_faculty_name': sessional.faculty.first_name+' '+sessional.faculty.last_name,
+        'table_subject': sessional.subject,
+        'table_department': sessional.faculty.department,
+
     }
 
-    file_name, status = save_pdf(params)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f"filename='{sessional.subject.title}-{sessional.semester}.pdf'"
 
-    pdf_path = settings.BASE_DIR / f'pdf/{file_name}.pdf'
-    # Ensure the file exists
-        # Open the file for reading
-    with open(pdf_path, 'rb') as pdf_file:
-        response = HttpResponse(pdf_file.read(), content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="{file_name}"'
-        return response
-    print('''
-///////
-          
-          ''')
-    print(pdf_path)
-    return redirect('/')
+    template = get_template('pdf.html')
+
+    html = template.render(params)
+
+    pisa_status = pisa.CreatePDF(
+       html, dest=response)
+    
+    if pisa_status.err:
+       return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
+
+
+def sessional_table_edit_request(request):
+    if not AccessRequest.objects.filter(message='SESSIONAL_TABLE_EDIT_ACCESS', user=request.user).exists():
+        AccessRequest.objects.create(message='SESSIONAL_TABLE_EDIT_ACCESS', user=request.user)
+        messages.info(request, 'Your request is sent!')
+    else:
+        messages.info(request, 'Your request already exists!')
+
+    table_uuid = request.GET.get('table_uuid')
+    field = request.GET.get('field')
+    
+    
+    return redirect(f'/sessional-table/{table_uuid}/{field}')

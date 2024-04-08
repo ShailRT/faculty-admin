@@ -1,43 +1,105 @@
-<!DOCTYPE html>
+{% load static %}
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
 
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Generate Document</title>
 </head>
+
 <body>
     <style>
-        {% comment %} td {
+        td,
+        th {
             border: solid 1px black;
+            padding: 1px;
+            text-align: center;
         }
-     {% endcomment %}
-    </style>
-    <table class="table">
-        <thead>
-          <tr>
-            <td>#</td>
-            {% for co in cos %}
-                <td>CO{{co.number}}_CT1</td>
-                <td>CO{{co.number}}_CT2</td>
-                <td>CO{{co.number}}_PUT</td>
-                <td>CO{{co.number}}_A/T</td>
-            {% endfor %}
-          </tr>
-        </thead>
-        <tbody>
-            {% for key, value in data.items %}
 
-            <tr> 
-                <td>{{key}}</td>
-            {% for ke, val in value.items %}
-                {% for k, v in val.items %}
-                <td>{% if v != '' %}{{v}}{% else %}0{%endif%}</td>
+        .header {
+            /* display: flex; */
+            /* justify-content: center; */
+            /* align-items: center; */
+            text-align: center;
+            height: 300px;
+            /* margin: 30px auto; */
+            width: 100%;
+            /* background-color: blue; */
+        }
+        
+        .header h2 {
+            margin-top: 0px;
+            padding-top: 0px;
+        }
+        
+        .header img {
+            width: 145px;
+            height: 130px;
+
+        }
+
+
+
+    </style>
+
+    <div class="header">
+        <img src="http://127.0.0.1:8000{% static 'image-pdf/logo.png' %}"
+            alt="logo">
+            <h2>
+                {{table_odd_or_even}} Semester, Session {{table_session}}<br>
+                B.Tech. ({{table_department}}) – {{table_semester}} Semester<br>
+                Faculty Name : Mr. {{table_faculty_name}}<br>
+                Subject Name and Code: {{table_subject.title}} ({{table_subject.code}})<br>
+                Attainment Sheet
+            </h2>
+    </div>
+
+    <div class="table">
+        <table class="table-1"> 
+            <tr>
+                <th style="width: 80px;">Roll No.</th>
+                {% for co in cos %}
+                <th style="margin: 0px; padding: auto 0px;">
+                    <table style="margin: 0px; padding: auto 0px; text-align: center;">
+                        <tr style="text-align: center; align-items: center; justify-content: center;">
+                            <td colspan="4" style="border: none;">CO{{co.number}}</td>
+                        </tr>
+                        <tr style="margin: 0px; padding: auto 0px;">
+                            <th>CT1</th>
+                            <th>CT2</th>
+                            <th>PUT</th>
+                            <th>A/T</th>
+                            <th>CO{{co.number}}%</th>
+                        </tr>
+                    </table>
+                </th>
                 {% endfor %}
-            {% endfor %}
-            </tr> 
-        {% endfor %}
-      </table>
+            </tr>
+        </table>
+        <table class="table">
+            <!-- <thead>
+                  <tr>
+                    <td>#</td>
+        
+                    
+                  </tr>
+                </thead> -->
+            <tbody>
+                {% for key, value in data.items %}
     
+                <tr>
+                    <td style="width:80px;">{{key}}</td>
+                    {% for ke, val in value.items %}
+                    {% for k, v in val.items %}
+                    <td>{% if v != '' %}{{v}}{% else %}0{%endif%}</td>
+                    {% endfor %}
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </body>
+
 </html>

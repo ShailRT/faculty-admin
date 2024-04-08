@@ -43,7 +43,8 @@ class CustomUser(AbstractUser):
     subjects = models.ManyToManyField(Subject, blank=True)
     is_login_permitted = models.BooleanField(default=False)
     is_editing_table_permitted = models.BooleanField(default=False)
-
+    is_sessional_table_editing_permitted = models.BooleanField(default=False)
+    
     def __str__(self):
         return self.username
 

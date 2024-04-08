@@ -113,6 +113,11 @@
         font-weight: 600;
         color: #0062cc;
     }
+    .profile-photo img {
+        max-width: 80px;
+        {% comment %} border: solid 5px #4e73df;
+        border-radius: 50%; {% endcomment %}
+    }
 </style>
         <!-- Begin Page Content -->
         <div class="container-fluid">
@@ -134,13 +139,11 @@
                             <div class="container emp-profile">
                                 <form method="post">
                                     <div class="row">
-                                        <div class="col-md-3">
-                                            <div class="profile-img">
-                                                <img src="{{user.photo.url}}"
+                                        <div class="col-md-3 profile-photo ">
+                                            <img src="{{user.photo.url}}"
                                                     alt="profile image" />
-                                            </div>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-md-8">
                                             <div class="profile-head">
                                                 <h5>
                                                     {{user.first_name}} {{user.last_name}}
@@ -150,45 +153,47 @@
                                                 </h6>
                                             </div>
                                         </div>
-                                        <div class="col-md-3">
+                                        
+                                        
+                                        {% comment %} <div class="col-md-3">
                                             <input type="submit" class="profile-edit-btn" name="btnAddMore"
                                                 value="Edit" />
-                                        </div>
+                                        </div> {% endcomment %}
                                     </div>
                                     <div class="row">
-                                        <div class="col-md-8 mt-3 ms-5">
+                                        <div class="col-md-12 mt-3 ms-5">
                                             <div class="tab-content profile-tab" id="myTabContent">
                                                 <div class="tab-pane fade show active" id="home" role="tabpanel"
                                                     aria-labelledby="home-tab">
                                                     <div class="row">
-                                                        <div class="col-md-6">
+                                                        <div class="col-md-4">
                                                             <label>User Id</label>
                                                         </div>
-                                                        <div class="col-md-6">
+                                                        <div class="col-md-8">
                                                             <p>{{user.username}}</p>
                                                         </div>
                                                     </div>
                                                     <div class="row">
-                                                        <div class="col-md-6">
+                                                        <div class="col-md-4">
                                                             <label>Email</label>
                                                         </div>
-                                                        <div class="col-md-6">
+                                                        <div class="col-md-8">
                                                             <p>{{user.email}}</p>
                                                         </div>
                                                     </div>
                                                     <div class="row">
-                                                        <div class="col-md-6">
+                                                        <div class="col-md-4">
                                                             <label>Phone</label>
                                                         </div>
-                                                        <div class="col-md-6">
+                                                        <div class="col-md-8">
                                                             <p>{{user.contact_number}}</p>
                                                         </div>
                                                     </div>
                                                     <div class="row">
-                                                        <div class="col-md-6">
+                                                        <div class="col-md-4">
                                                             <label>Department</label>
                                                         </div>
-                                                        <div class="col-md-6">
+                                                        <div class="col-md-8">
                                                             <p>{{user.department}}</p>
                                                         </div>
                                                     </div>

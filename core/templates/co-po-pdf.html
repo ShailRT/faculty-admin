@@ -1,0 +1,83 @@
+{% load static %}
+{% load custom_tags %}
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CO/PO Table</title>
+</head>
+
+<body>
+    <style>
+        td,
+        th {
+            border: solid 1px black;
+            padding: 1px;
+            text-align: center;
+        }
+
+        .header {
+            /* display: flex; */
+            /* justify-content: center; */
+            /* align-items: center; */
+            text-align: center;
+            height: 300px;
+            /* margin: 30px auto; */
+            width: 100%;
+            /* background-color: blue; */
+        }
+        
+        .header h2 {
+            margin-top: 0px;
+            padding-top: 0px;
+        }
+        
+        .header img {
+            width: 145px;
+            height: 130px;
+
+        }
+
+
+
+    </style>
+
+    <div class="header">
+        <img src="http://127.0.0.1:8000{% static 'image-pdf/logo.png' %}"
+            alt="logo">
+            <h2>
+                Subject Name and Code: {{subject.title}} ({{subject.code}})<br>
+                Mapping of Course Outcomes with Pos
+            </h2>
+    </div>
+
+    <div class="table">
+        <table class="table">
+                  <tr>
+                    <th colspan="2">Course Code</th>
+                    {% for da in data.keys %}
+                    <th>{{da}}</th>
+                    {% endfor %}
+                    
+                  </tr>
+                {% for val in  value_range %}  
+                <tr>
+                    {% if forloop.counter == 1 %}
+                    <td rowspan="4" colspan="2">{{subject.code}}</td>
+                    {% endif %}
+                    {% for key in key_range %}
+                    {% comment %} <td>{{val}} - {{key}}</td> {% endcomment %}
+                    <td>{% render_data data key val %}
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+        </table>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
