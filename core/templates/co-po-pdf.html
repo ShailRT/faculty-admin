@@ -62,10 +62,10 @@
                     {% endfor %}
                     
                   </tr>
-                {% for val in  value_range %}  
+                {% for val in value_range %}  
                 <tr>
                     {% if forloop.counter == 1 %}
-                    <td rowspan="4" colspan="2">{{subject.code}}</td>
+                    <td rowspan="{{value_len}}" colspan="2">{{subject.code}}</td>
                     {% endif %}
                     {% for key in key_range %}
                     {% comment %} <td>{{val}} - {{key}}</td> {% endcomment %}

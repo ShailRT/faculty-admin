@@ -273,11 +273,13 @@ def download_table(request, pk):
                 avg = ''
             data[key].append(avg)
 
+    print(data)
     params = {
         'data': data,
         'subject': subject,
         'key_range' : range(len(data.keys())),
         'value_range' : range(len(data[next(iter(data))])),
+        'value_len': len(data[next(iter(data))]),
     }
 
     response = HttpResponse(content_type='application/pdf')
@@ -295,64 +297,6 @@ def download_table(request, pk):
         return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
 
-
-
-    df = pd.DataFrame(data)
-
-    current_datetime = datetime.now().strftime('%d_%H-%M-%S')
-
-    pdf_file_name = f'table-{subject.title}-{current_datetime}.pdf'
-    pdf = SimpleDocTemplate(pdf_file_name, pagesize=letter)
-
-    table_data = [df.columns.to_list()] + df.values.tolist()
-
-    table = Table(table_data)
-
-    style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),  # Header background color
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),  # Header text color
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Center align all cells
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Grid lines
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Header font bold
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  # Header bottom padding
-        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),  # Body font
-        ('FONTSIZE', (0, 0), (-1, -1), 8),  # Font size
-        ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),  # Inner grid lines
-        ('BOX', (0, 0), (-1, -1), 0.25, colors.black),  # Outer border
-    ])
-    table.setStyle(style)
-
-    # Add a centered heading above the table
-    heading = "Mapping of Course Outcomes with Pos"
-    heading_style = ParagraphStyle(
-        'Heading1',
-        parent=getSampleStyleSheet()['Heading1'],
-        alignment=TA_CENTER,
-    )
-    heading_paragraph = Paragraph(heading, heading_style)
-    elements = [heading_paragraph, Spacer(1, 12), table]
-
-    # Build the PDF document
-    pdf.build(elements)
-
-
-    with open(pdf_file_name, 'rb') as pdf_file:
-        response = HttpResponse(pdf_file.read(), content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="{pdf_file_name}"'
-        return response
-    
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f'attachment; filename="{pdf_file_name}.csv"'
-
-    # csv_writer = csv.writer(response)
-
-    # csv_writer.writerow(list(cos.first().program_outcome_priority.keys())+list(cos.first().program_specific_outcome_priority[selected_department].keys())+list(cos.first().program_educational_objective_priority[selected_department].keys()))
-    # for co in cos:
-    #     csv_writer.writerow(list(co.program_outcome_priority.values())+list(co.program_specific_outcome_priority[selected_department].values())+list(co.program_educational_objective_priority[selected_department].values()))
-    
-    # df.to_csv(response, index=False)
-    
-    # return response
 
 def delete_co(request, pk):
     co = CourseOutcome.objects.filter(uuid=pk).first()

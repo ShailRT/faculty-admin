@@ -32,7 +32,7 @@ export-env {
       }
     }
 
-    let virtual_env = 'C:\Users\shail\Desktop\Folders\gniot\faculty-admin'
+    let virtual_env = 'C:\Users\shail\Desktop\Work\faculty-admin'
     let bin = 'Scripts'
 
     let is_windows = ($nu.os-info.family) == 'windows'

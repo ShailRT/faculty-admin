@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'core',
-    'sessional_co'
+    'sessional_co',
+    'exit_survey',
 ]
 
 MIDDLEWARE = [

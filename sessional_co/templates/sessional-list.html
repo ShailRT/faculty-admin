@@ -20,18 +20,23 @@
               <div class="container-fluid">
                 <div class="row mb-2">
                   <div class="col-6">
-                    <label for="id_session" class="form-label">Session:</label>
-                    <input type="text" class="form-control" name="session" maxlength="8" required="" id="id_session" />
+                    <label for="session" class="form-label">Session:</label><br />
+                    <select id="session" name="session" class="form-control border">
+                      <option class="active">Choose...</option>
+                      {% for session in sessions %}
+                        <option value="{{session.uuid}}">{{session.session}} {{session.department}} Year-{{session.year}}</option>
+                      {% endfor %}
+                    </select>
                   </div>
                   <div class="col-6">
-                    <label for="inputState" class="form-label">Semester:</label><br />
-                    <select id="inputState" name="semester" class="form-control border">
+                    <label for="semester" class="form-label">Semester:</label><br />
+                    <select id="semester" name="semester" class="form-control border">
                       <option class="active">Choose...</option>
                       <option value="I">1st</option>
                       <option value="II">2nd</option>
                       <option value="III">3rd</option>
                       <option value="IV">4th</option>
-                      <option value="V">5th</option>
+                      <option value="5th">5th</option>
                       <option value="VI">6th</option>
                       <option value="VII">7th</option>
                       <option value="VIII">8th</option>
@@ -40,13 +45,8 @@
                 </div>
                 <div class="row mb-2">
                   <div class="col-6">
-                    <label for="id_student_list">Students:</label>
-                    <textarea name="student_list" class="form-control" cols="40" rows="3" required=""
-                      id="id_student_list"></textarea>
-                  </div>
-                  <div class="col-6">
                     <label for="inputState" class="form-label">Subjects:</label><br />
-                    <select data-live-search="true" id="inputState" name="subject_uuid"
+                    <select data-live-search="true" id="inputState" name="subject"
                       class="form-select selectpicker border mb-3 w-100">
                       {% for subject in subjects %}
                       <option value="{{subject.uuid}}">{{subject.code}}</option>

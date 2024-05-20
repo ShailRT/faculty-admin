@@ -1,4 +1,4 @@
-@set "VIRTUAL_ENV=C:\Users\shail\Desktop\Folders\gniot\faculty-admin"
+@set "VIRTUAL_ENV=C:\Users\shail\Desktop\Work\faculty-admin"
 
 @set "VIRTUAL_ENV_PROMPT="
 @if NOT DEFINED VIRTUAL_ENV_PROMPT (

@@ -2,59 +2,49 @@ from django.shortcuts import render, redirect, HttpResponse
 from django.contrib import messages
 from core.models import Subject, CourseOutcome, AccessRequest
 from .models import SessionalTable
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Spacer, Paragraph, Image
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER
+from .forms import SessionalTableCreateForm
+from exit_survey.models import SessionStudent
 import pandas as pd
-import json
-from datetime import datetime
-from .helpers import save_pdf 
-from django.http import FileResponse
-from django.conf import settings
-import os
-
 from xhtml2pdf import pisa
 from django.template.loader import get_template
 
 
 def sessional_list(request):
     if request.method == "POST":
-        subject = Subject.objects.filter(uuid=request.POST['subject_uuid']).first()
-        student_list = request.POST['student_list'].split('\r\n')
-        student_json = {}
-        for student in student_list:
-            temp_student = student.split('\t')
-            student_json[temp_student[0]] = temp_student[1]
+        form = SessionalTableCreateForm(request.POST)
+        if form.is_valid():
+            form = form.save(commit=False)
+            form.faculty = request.user
+            cos = CourseOutcome.objects.filter(subject=form.subject)
+            co_json = {}
+            max_marks = {}
+            for co in cos:
+                max_marks[f'CO{co.number}'] = {
+                    'ct1': 0, 
+                    'ct2': 0, 
+                    'put': 0, 
+                    'ant': 0, 
+                }
+                co_json[f"CO{co.number}"] = {}
+                for student in form.session.students.all():
+                    co_json[f"CO{co.number}"][student.university_roll_no] = ''
+            
+            form.ct1, form.ct2, form.put, form.assignment_tutorial = co_json, co_json, co_json, co_json
+            form.max_marks = max_marks
+            form.save()
+        else:
+            print(form.errors)
+        return redirect('sessional-list')
         
-        cos = CourseOutcome.objects.filter(subject=subject)
-        co_json = {}
-        max_marks = {}
-        for co in cos:
-            max_marks[f'CO{co.number}'] = {
-                'ct1': 0, 
-                'ct2': 0, 
-                'put': 0, 
-                'ant': 0, 
-            }
-            co_json[f"CO{co.number}"] = {}
-            for student in student_json.keys():
-                co_json[f"CO{co.number}"][student] = ''
-        
-        try:
-            sessional = SessionalTable.objects.create(faculty=request.user,
-                session=request.POST['session'], semester=request.POST['semester'], student_info=student_json, subject=subject,
-                ct1=co_json, ct2=co_json, put=co_json, assignment_tutorial=co_json, max_marks=max_marks)
-            messages.info(request, 'Table Created')
-        except:
-            print()
-        
+    form = SessionalTableCreateForm()
+    sessions = SessionStudent.objects.all()
     subjects = Subject.objects.all()
     sessionals = SessionalTable.objects.filter(faculty=request.user)
     context = {
         'subjects': subjects,
-        'sessionals': sessionals
+        'sessionals': sessionals,
+        'sessions': sessions,
+        'form': form
     }
     return render(request, 'sessional-list.html', context)
 
@@ -123,8 +113,8 @@ def test_pdf(request, pk):
     sessional = SessionalTable.objects.filter(uuid=pk).first()
     cos = CourseOutcome.objects.filter(subject=sessional.subject)
     data = {}
-    for no in sessional.student_info.keys():
-        data[no] = {}
+    for student in sessional.session.students.all():
+        data[student.university_roll_no] = {}
     
     for key, value in sessional.ct1.items():
         for k, v in value.items():
@@ -199,7 +189,6 @@ def test_pdf(request, pk):
     if pisa_status.err:
        return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
-
 
 def sessional_table_edit_request(request):
     if not AccessRequest.objects.filter(message='SESSIONAL_TABLE_EDIT_ACCESS', user=request.user).exists():
