@@ -1,105 +1,143 @@
 {% load static %}
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Generate Document</title>
-</head>
+  </head>
 
-<body>
+  <body>
     <style>
-        td,
-        th {
-            border: solid 1px black;
-            padding: 1px;
-            text-align: center;
-        }
+      table {
+        max-width: 500px;
+      }
+      td,
+      th {
+        border: solid 1px black;
+        padding: 1px;
+        text-align: center;
+      }
 
-        .header {
-            /* display: flex; */
-            /* justify-content: center; */
-            /* align-items: center; */
-            text-align: center;
-            height: 300px;
-            /* margin: 30px auto; */
-            width: 100%;
-            /* background-color: blue; */
-        }
-        
-        .header h2 {
-            margin-top: 0px;
-            padding-top: 0px;
-        }
-        
-        .header img {
-            width: 145px;
-            height: 130px;
+      .header {
+        /* display: flex; */
+        /* justify-content: center; */
+        /* align-items: center; */
+        text-align: center;
+        height: 300px;
+        /* margin: 30px auto; */
+        width: 100%;
+        /* background-color: blue; */
+      }
 
-        }
+      .header h2 {
+        margin-top: 0px;
+        padding-top: 0px;
+      }
 
+      .header img {
+        width: 145px;
+        height: 130px;
+      }
 
-
+      .co-attainment-table h2 {
+        margin-top: 50px;
+        text-align: center;
+      }
     </style>
 
     <div class="header">
-        <img src="http://127.0.0.1:8000{% static 'image-pdf/logo.png' %}"
-            alt="logo">
-            <h2>
-                {{table_odd_or_even}} Semester, Session {{table_session}}<br>
-                B.Tech. ({{table_department}}) – {{table_semester}} Semester<br>
-                Faculty Name : Mr. {{table_faculty_name}}<br>
-                Subject Name and Code: {{table_subject.title}} ({{table_subject.code}})<br>
-                Attainment Sheet
-            </h2>
+      <img
+        src="http://127.0.0.1:8000{% static 'image-pdf/logo.png' %}"
+        alt="logo"
+      />
+      <h2>
+        {{table_odd_or_even}} Semester, Session {{table_session}}<br />
+        B.Tech. ({{table_department}}) – {{table_semester}} Semester<br />
+        Faculty Name : Mr. {{table_faculty_name}}<br />
+        Subject Name and Code: {{table_subject.title}}
+        ({{table_subject.code}})<br />
+        Attainment Sheet
+      </h2>
     </div>
 
-    <div class="table">
-        <table class="table-1"> 
-            <tr>
-                <th style="width: 80px;">Roll No.</th>
-                {% for co in cos %}
-                <th style="margin: 0px; padding: auto 0px;">
-                    <table style="margin: 0px; padding: auto 0px; text-align: center;">
-                        <tr style="text-align: center; align-items: center; justify-content: center;">
-                            <td colspan="4" style="border: none;">CO{{co.number}}</td>
-                        </tr>
-                        <tr style="margin: 0px; padding: auto 0px;">
-                            <th>CT1</th>
-                            <th>CT2</th>
-                            <th>PUT</th>
-                            <th>A/T</th>
-                            <th>CO{{co.number}}%</th>
-                        </tr>
-                    </table>
-                </th>
-                {% endfor %}
-            </tr>
-        </table>
-        <table class="table">
-            <!-- <thead>
-                  <tr>
-                    <td>#</td>
-        
-                    
-                  </tr>
-                </thead> -->
-            <tbody>
-                {% for key, value in data.items %}
-    
+    <table class="table table-striped-columns table-bordered">
+      <thead>
+        <tr>
+          <th scope="col" >{{ data.header.0 }}</th>
+          <th scope="col" >CO</th>
+          {% for header in data.header.1 %}
+            <th>
+              <table class="w-100">
+                {% for key, value in header.items %}
                 <tr>
-                    <td style="width:80px;">{{key}}</td>
-                    {% for ke, val in value.items %}
-                    {% for k, v in val.items %}
-                    <td>{% if v != '' %}{{v}}{% else %}0{%endif%}</td>
-                    {% endfor %}
-                    {% endfor %}
+                  <th colspan="{{value| length}}">{{key}}</th>
+                </tr>
+                <tr>
+                  {% for val in value %}
+                    <td>{{val}}</td>
+                  {% endfor %}
                 </tr>
                 {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</body>
+              </table>
+            </th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for tbkey, tbvalue in data.body.items %}
+        <tr>
+          <th>
+            {{tbkey}}
+          </th>
+          <th colspan="5">
+            <table class="w-100">
+              {% for cokey, coval in tbvalue.items %}
+              <tr>
+                <td>
+                  {{cokey}}
+                </td>
+                {% for qno, qval in coval.items %}
+                  {% for marks in qval %}
+                <td>
+                  {{marks}}
+                 
+                </td>
+                  {% endfor %}
+                {% endfor %}
+              </tr>
+              {% endfor %}
+            </table>
+          </th>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    
+    
 
+    {% comment %} <div class="co-attainment-table">
+      <h2>CO Attainment</h2>
+      <table>
+        <tr>
+          <td>No of students securing more than 70% marks</td>
+          {% for key, value in co_attainment.items %}
+          <td>{{value.count}}</td>
+          {% endfor %}
+        </tr>
+        <tr>
+          <td>Percentage of students securing more than 70% marks</td>
+          {% for key, value in co_attainment.items %}
+          <td>{{value.percentage}}</td>
+          {% endfor %}
+        </tr>
+        <tr>
+          <td>CO attainment Level</td>
+          {% for key, value in co_attainment.items %}
+          <td>{{value.level}}</td>
+          {% endfor %}
+        </tr>
+      </table>
+    </div> {% endcomment %}
+  </body>
 </html>

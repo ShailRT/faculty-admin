@@ -16,7 +16,7 @@
                         <div class="card border-left-primary shadow h-100 py-2">
                             <div class="card-body">
                                 <form method="GET" class="row g-3">
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                       <label for="inputState" class="form-label">Subject:</label><br>
                                       <select data-live-search="true" id="inputState" name="subject_uuid" class="form-select js-select border mb-3" required>
                                         <option value="{% if selected_subject %}{{selected_subject.uuid}}{% endif %}" selected >
@@ -33,7 +33,24 @@
                                       </select>
                                       
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
+                                        <label for="inputState" class="form-label">Session:</label><br>
+                                        <select data-live-search="true" id="inputState" name="session_uuid" class="form-select js-select border mb-3" required>
+                                          <option value="{% if selected_session %}{{selected_session.uuid}}{% endif %}" selected >
+                                              {% if selected_session %}{{selected_session.session}}-{{selected_session.department}}{% else %}Choose...{% endif %}</option>
+                                          {% for session in session_list %}
+                                            {% if selected_session %}
+                                                {% if session != selected_session %}
+                                                    <option value="{{session.uuid}}">{{session.session}}-{{session.department}}</option>
+                                                {% endif %}
+                                            {% else %}
+                                                <option value="{{session.uuid}}">{{session.session}}-{{session.department}}</option>
+                                            {% endif %}
+                                          {% endfor %}
+                                        </select>
+                                        
+                                      </div>
+                                    <div class="col-md-4">
                                         <label for="inputState" class="form-label">Department:</label><br>
                                         <select data-live-search="true" id="inputState" name="selected_department" class="form-select js-select border mb-3" required>
                                           <option value="{% if selected_department %}{{selected_department}}{% endif %}" selected>
@@ -68,7 +85,7 @@
                         <div class="card shadow">
                             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                                 <h6 class="m-0 font-weight-bold text-primary">{{selected_subject.title}}</h6>
-                                <a href="{% url 'download-table' pk=selected_subject.uuid %}?selected_department={{selected_department}}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
+                                <a href="{% url 'download-table' sub=selected_subject.uuid dep=selected_department session=selected_session.uuid %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" target="_blank"><i
                                     class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
                             </div>
                             <div class="card-body" style="overflow: auto;">
@@ -138,6 +155,7 @@
                                     </table>
                                     {% if user.is_editing_table_permitted %}
                                         <input type="hidden" name="subject_uuid" value="{{selected_subject.uuid}}">
+                                        <input type="hidden" name="session_uuid" value="{{selected_session.uuid}}">
                                         <input type="hidden" name="selected_department" value="{{selected_department}}">
                                         <button type="submit" class="btn btn-primary">Submit</button>
                                     {% endif %}

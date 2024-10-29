@@ -1,17 +1,34 @@
-{% extends 'base-dash.html' %} {% block title %}Exit Survey{% endblock title %} {% block content %}
-
-<!-- Begin Page Content -->
-<div class="container-fluid">
-  <!-- Page Heading -->
-  <h1 class="h3 mb-4 text-gray-800">Exit Survey Student List</h1>
+{% extends 'base-dash.html' %}
+{% load custom_tags %}
+{% block title %}
+  Exit Survey
+{% endblock title %}
+{% block content %}
+  <!-- Begin Page Content -->
+  <div class="container-fluid">
+    <!-- Page Heading -->
+    <h1 class="h3 mb-4 text-gray-800">
+      {% breadcrumbs as breadcrumb_list %}
+      <ol class="breadcrumb bg-transparent">
+        {% for name, url in breadcrumb_list %}
+          <li class="breadcrumb-item">
+            <a href="{{ url }}">{{ name }}</a>
+          </li>
+        {% endfor %}
+        <li class="breadcrumb-item">
+          <a>{{ survey.subject.title }}</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a>Student List</a>
+        </li>
+      </ol>
+    </h1>
     <div class="container col-md-12">
       <div class="row">
         <div class="col-12 col-md-12 mb-4">
           <div class="card shadow">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-              <h6 class="m-0 font-weight-bold text-primary">
-                {{survey.subject.title}} {{survey.session}}
-              </h6>
+              <h6 class="m-0 font-weight-bold text-primary">{{ survey.subject.title }} {{ survey.session }}</h6>
             </div>
             <div class="card-body">
               <table class="table table-striped-columns table-bordered pr-2">
@@ -19,20 +36,16 @@
                   <th>Roll No.</th>
                   <th>First Name</th>
                   <th>Last Name</th>
-                  {% for co in cos %}
-                    <th>CO{{co.number}}</th>
-                  {% endfor %}
+                  {% for co in cos %}<th>CO{{ co.number }}</th>{% endfor %}
                 </tr>
                 {% for student in survey.session.students.all %}
                   <tr>
-                    <td>{{student.university_roll_no}}</td>
-                    <td>{{student.first_name}}</td>
-                    <td>{{student.last_name}}</td>
+                    <td>{{ student.university_roll_no }}</td>
+                    <td>{{ student.first_name }}</td>
+                    <td>{{ student.last_name }}</td>
                     {% for key, value in student.co_response.items %}
                       {% if key == survey.subject.code %}
-                        {% for k,v in value.items %}
-                          <td>{{v}}</td>
-                        {% endfor %}
+                        {% for k,v in value.items %}<td>{{ v }}</td>{% endfor %}
                       {% endif %}
                     {% endfor %}
                   </tr>
@@ -43,7 +56,34 @@
         </div>
       </div>
     </div>
-</div>
-<!-- /.container-fluid -->
-
+    <div class="container col-md-12">
+      <div class="row">
+        <div class="col-12 col-md-12 mb-4">
+          <div class="card shadow">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+              <h6 class="m-0 font-weight-bold text-primary">CO Attainment</h6>
+            </div>
+            <div class="card-body">
+              <table class="table table-striped-columns table-bordered pr-2">
+                <tr>
+                  <th>Course outcomes</th>
+                  <th>%age of students</th>
+                  <th>Attainment Level</th>
+                </tr>
+                {% for key, value in attainment.items %}
+                  <tr>
+                    <td>{{ key }}</td>
+                    {% for k, v in value.items %}
+                      {% if k != 'count' %}<td>{{ v }}</td>{% endif %}
+                    {% endfor %}
+                  </tr>
+                {% endfor %}
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /.container-fluid -->
 {% endblock content %}

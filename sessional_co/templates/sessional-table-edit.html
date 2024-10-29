@@ -1,110 +1,141 @@
-{% extends 'base-dash.html' %}
-{% load custom_tags %}
+{% extends 'base-dash.html' %} {% load custom_tags %} {% block title %} {{
+subject.title|capfirst }} Table {% endblock title %} {% block content %}
+<!-- Begin Page Content -->
+<div class="container-fluid">
+  <!-- Page Heading -->
+  <h1 class="h3 mb-4 text-gray-800">
+    ` {% breadcrumbs as breadcrumb_list %}
+    <ol class="breadcrumb bg-transparent">
+      {% for name, url in breadcrumb_list %}
+      <li class="breadcrumb-item">
+        <a href="{{ url }}">{{ name }}</a>
+      </li>
+      {% endfor %}
+      <li class="breadcrumb-item">
+        <a>{{ subject.title|capfirst }} ({{ subject.code|upper }})</a>
+      </li>
+    </ol>
+  </h1>
+  <h1 class="h3 mb-4 text-gray-800"></h1>
+  <div class="container col-md-12">
+    <div class="row">
+      <div class="col-12 col-md-12 mb-4">
+        <div class="card shadow">
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">
+              Sessional Table - {{ field|upper }}
+              <a href="{% url 'sessional-test-pdf' pk=table_uuid %}?field={{field}}"><span class="badge bg-success rounded-pill text-white p-2">DOWNLOAD</span></a>
+              <button>
 
-{% block title %}{{subject.title|capfirst}} Table{% endblock title %}
+              </button>
+            </h6>
+          </div>
+          <div class="card-body">
+            <form method="post">
+              {% csrf_token %}
+              <table class="table table-striped-columns table-bordered">
+                <thead>
+                  <tr>
+                    <th scope="col" rowspan="2">{{ table_header.0 }}</th>
+                    <th scope="col" rowspan="2">CO</th>
+                    {% for header in table_header.1 %}
+                      <th>
+                        <table class="w-100">
+                          {% for key, value in header.items %}
+                          <tr>
+                            <th colspan="5">{{key}}</th>
+                          </tr>
+                          <tr>
+                            {% for val in value %}
+                              <td>{{val}}</td>
+                            {% endfor %}
+                          </tr>
+                          {% endfor %}
+                        </table>
+                      </th>
+                    {% endfor %}
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for tbkey, tbvalue in table_body.items %}
+                  <tr>
+                    <th>
+                      {{tbkey}}
+                    </th>
+                    <th colspan="5">
+                      <table class="w-100">
+                        {% for cokey, coval in tbvalue.items %}
+                        <tr>
+                          <td>
+                            {{cokey}}
+                          </td>
+                          {% for qno, qval in coval.items %}
+                            {% for marks in qval %}
+                          <td>
+                            <input class="form-control" name="{{tbkey}}_{{ cokey }}_{{qno}}_{{ forloop.counter0 }}" type="number" value="{{marks}}"
+                            min="0" max="30" />
+                           
+                          </td>
+                            {% endfor %}
+                          {% endfor %}
+                        </tr>
+                        {% endfor %}
+                      </table>
+                    </th>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
 
-{% block content %}
+              <h3>Max marks </h3>
+              <div class="row mb-4">
+              {% for co, marks in table_max_marks.items %}
+              <div class="col-6">
+                <label for="session" class="form-label">{{co}}:</label>
+                <br />
+                <input class="form-control" name="max_{{co}}" type="number" value="{{marks}}" min="0" max="30" />
+              </div>
 
-        <!-- Begin Page Content -->
-        <div class="container-fluid">
-
-            <!-- Page Heading -->
-            <h1 class="h3 mb-4 text-gray-800">{{subject.title|capfirst}} ({{subject.code|upper}})</h1>
-            <div class="container col-md-12">
-                <div class="row">
-                    <div class="col-12 col-md-12 mb-4">
-                        <div class="card shadow">
-                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                <h6 class="m-0 font-weight-bold text-primary">Sessional Table - {{field|upper}}</h6>
-                            </div>
-                            <div class="card-body">
-                                <form method="POST">
-                                    {% csrf_token %}
-                                    <table class="table table-striped-columns table-bordered">
-                                        <thead>
-                                            
-                                        <tr>
-                                            <th scope="col">Student Roll No.</th>
-                                            {% for key, value in max_marks.items %}
-                                            <th scope="col">
-                                              <div class="d-flex align-items-center">
-                                                {{key}} MM =
-                                                <input class="form-control w-50 ml-2" name="{{key}}_maxmarks" type="number" value="{{value}}" placeholder="Maximum Marks"/>
-                                              </div>
-                                            </th>
-                                            {% endfor %}
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for key, value in table_body.items %}
-                                                <tr>
-                                                    <th scope="row">{{key}}</th>
-                                                    {% for v in value %}
-                                                        <th scope="row">
-                                                                <input class="form-control" name="CO{{forloop.counter}}_{{key}}" type="number" value="{{v}}" min="0" max="30"/>
-                                                        </th>
-                                                    {% endfor %}
-                                                </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                    {% if user.is_sessional_table_editing_permitted %}
-                                        <button type="submit" class="btn btn-primary">Submit</button>
-                                    {% endif %}
-                                </form>
-                                    {% if not user.is_sessional_table_editing_permitted %}
-                                        <a data-toggle="modal" data-target="#accessRequestModal">
-                                            <button class="btn btn-primary">Request Edit Access</button>
-                                        </a>
-                                    {% endif %}
-                                
-                                
-                            </div>
-                        </div>
-
-                    </div>
-                    
-                </div>
+              {%endfor %}
             </div>
-        </div>
-        <!-- /.container-fluid -->
-        <div
-      class="modal fade"
-      id="accessRequestModal"
-      tabindex="-1"
-      role="dialog"
-      aria-labelledby="accessRequestModal"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Access Request</h5>
-            <button
-              class="close"
-              type="button"
-              data-dismiss="modal"
-              aria-label="Close"
-            >
-              <span aria-hidden="true">×</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            Select "Send" below if you want to send access request for editing table.
-          </div>
-          <div class="modal-footer">
-            <button
-              class="btn btn-secondary"
-              type="button"
-              data-dismiss="modal"
-            >
-              Cancel
-            </button>
-            <a class="btn btn-primary" href="{% url 'sessional-table-edit-request' %}?table_uuid={{table_uuid}}&field={{field}}">Send</a>
+              {% if user.is_sessional_table_editing_permitted %}
+              <button type="submit" class="btn btn-primary">Submit</button>
+              {% endif %}
+            </form>
+            {% if not user.is_sessional_table_editing_permitted %}
+            <a data-toggle="modal" data-target="#accessRequestModal">
+              <button class="btn btn-primary">Request Edit Access</button>
+            </a>
+            {% endif %}
           </div>
         </div>
       </div>
     </div>
-
-   
+  </div>
+</div>
+<!-- /.container-fluid -->
+<div class="modal fade" id="accessRequestModal" tabindex="-1" role="dialog" aria-labelledby="accessRequestModal"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Access Request</h5>
+        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Select "Send" below if you want to send access request for editing
+        table.
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" type="button" data-dismiss="modal">
+          Cancel
+        </button>
+        <a class="btn btn-primary"
+          href="{% url 'sessional-table-edit-request' %}?table_uuid={{ table_uuid }}&field={{ field }}">Send</a>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock content %}

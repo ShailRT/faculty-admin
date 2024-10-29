@@ -5,17 +5,11 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import login as auth_login
 from .forms import CustomUserForm, ProgramOutcomeForm
 from .models import Subject, CourseOutcome, ProgramOutcome, ProgramEducationalObjective, ProgramSpecificOutcome, FacultyInfo, College, AccessRequest
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Spacer, Paragraph
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER
-import json
-import csv
-import pandas as pd
-from datetime import datetime 
 from xhtml2pdf import pisa
 from django.template.loader import get_template
+from .helper import get_average_attainment
+from exit_survey.models import SessionStudent, ExitSurvey
+from sessional_co.models import SessionalTable
 
 department_choices = ('IT','CS','AI/ML','IOT')
 college_choices = ('GNIOT', 'GIMS')
@@ -73,9 +67,20 @@ def registration(request):
 @login_required(login_url='login')
 def index(request):
     user = request.user
-
+    sessions = SessionStudent.objects.filter(faculty=user)
+    sessionals = SessionalTable.objects.filter(faculty=user)
+    surveys = ExitSurvey.objects.filter(faculty=user)
+    
+    profile_status = {
+        'Add Your Subjects': user.subjects.count() > 0,
+        'Create Session': len(sessions)>0,
+        'Add Students to Your Sessions': sessions.first().students.count()>0,
+        'Add Sessional Marks': len(sessionals)>0,
+        'Create Surveys': len(surveys)>0,
+    }
     context = {
-        'user': user
+        'user': user,
+        'profile_status': profile_status,
     }
     return render(request, 'index.html', context)
 
@@ -112,6 +117,8 @@ def remove_subject(request, pk):
 def co_po_table(request):
     if request.method == "POST":
         subject_uuid = request.POST['subject_uuid']
+        print(request.POST['session_uuid'])
+        session_uuid = request.POST['session_uuid']
         selected_department = request.POST['selected_department']
         subject = Subject.objects.filter(uuid=subject_uuid).first()
         co_list = CourseOutcome.objects.filter(subject=subject)
@@ -124,19 +131,22 @@ def co_po_table(request):
                 co.program_educational_objective_priority[selected_department][peo] = request.POST[f'CO{co.number}_{peo}']
             co.save()
         messages.info(request, "Table Saved")
-        return redirect(f'/co-po-table?subject_uuid={subject_uuid}&selected_department={selected_department}')
+        return redirect(f'/co-po-table?subject_uuid={subject_uuid}&selected_department={selected_department}&session_uuid={session_uuid}')
     else:
         subjects = request.user.subjects.all()
         selected_subject = None
+        session_list = SessionStudent.objects.filter(faculty=request.user)
+        selected_session = None
         departments =  department_choices
         selected_department = request.GET.get('selected_department')
+        selected_session_uuid = request.GET.get('session_uuid')
         selected_subject_uuid = request.GET.get('subject_uuid')
         co_po_header = []
         co_list = {}
         co_render_list = {}
-        if selected_subject_uuid != '' and selected_subject_uuid != None and selected_department != '' and selected_department != None:
+        if selected_subject_uuid != '' and selected_subject_uuid != None and selected_department != '' and selected_department != None and selected_session_uuid != None and selected_session_uuid != '':
             selected_subject = Subject.objects.filter(uuid=selected_subject_uuid).first()
-            
+            selected_session = SessionStudent.objects.filter(uuid=selected_session_uuid).first()
             co_list = CourseOutcome.objects.filter(subject=selected_subject)
             if len(co_list) > 0:
                 co_po_header = list(co_list.first().program_outcome_priority.keys()) + list(co_list.first().program_specific_outcome_priority[selected_department].keys()) + list(co_list.first().program_educational_objective_priority[selected_department].keys())
@@ -154,6 +164,8 @@ def co_po_table(request):
             'departments': departments,
             'selected_subject' : selected_subject,
             'selected_department' : selected_department,
+            'session_list': session_list,
+            'selected_session': selected_session,
         }
         return render(request, 'co-po/co-po-table.html', context)
     
@@ -186,7 +198,8 @@ def add_co(request):
             for peo in peos:
                 program_educational_objective_priority[f"{dep}"][f'PEO{peo.number}'] = None
         
-        CourseOutcome.objects.create(number=request.POST['number'], message=request.POST['message'], subject=selected_subject, program_outcome_priority=program_outcome_priority, program_educational_objective_priority=program_educational_objective_priority, program_specific_outcome_priority=program_specific_outcome_priority)
+        co = CourseOutcome.objects.create(number=request.POST['number'], message=request.POST['message'], subject=selected_subject, program_outcome_priority=program_outcome_priority, program_educational_objective_priority=program_educational_objective_priority, program_specific_outcome_priority=program_specific_outcome_priority)
+        # table = SessionalTable.objects.filter(subject=co.subject, )
         return redirect(f'/add-co?subject_uuid={selected_subject.uuid}')
         
 
@@ -230,9 +243,10 @@ def add_po(request):
 
     return render(request, 'co-po/add-po.html', context)
 
-def download_table(request, pk):
-    subject = Subject.objects.filter(uuid=pk).first()
-    selected_department = request.GET.get('selected_department')
+def download_table(request, sub, dep, session):
+    subject = Subject.objects.filter(uuid=sub).first()
+    selected_department = dep
+    session = SessionStudent.objects.filter(uuid=session).first()
     cos = CourseOutcome.objects.filter(subject=subject)
 
     data = {
@@ -272,14 +286,25 @@ def download_table(request, pk):
             except ZeroDivisionError:
                 avg = ''
             data[key].append(avg)
+    
 
-    print(data)
+    final_attainment = get_average_attainment(subject=subject, session=session)
+    po_attainment = {}
+    for key, value in data.items():
+        if key != 'PO/CO':
+            if value[-1] != '':
+                po_attainment[key] = round(value[-1]*final_attainment['avg_attainment'], 2)
+            else:
+                po_attainment[key] = 0.0
+    print('po', po_attainment)
     params = {
         'data': data,
         'subject': subject,
         'key_range' : range(len(data.keys())),
         'value_range' : range(len(data[next(iter(data))])),
         'value_len': len(data[next(iter(data))]),
+        'po_attainment': po_attainment,
+        'final_attainment': final_attainment,
     }
 
     response = HttpResponse(content_type='application/pdf')
@@ -296,8 +321,7 @@ def download_table(request, pk):
     if pisa_status.err:
         return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
-
-
+    
 def delete_co(request, pk):
     co = CourseOutcome.objects.filter(uuid=pk).first()
     co.delete()

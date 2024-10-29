@@ -22,9 +22,9 @@ class SessionalTable(models.Model):
         ordering = ['-date_created']
 
     def __str__(self):
-        return f"{self.session.session} {self.session.department}"
+        return f"{self.subject.code} {self.semester} [{self.session.session}] [{self.session.department}]"
     
-    
+
 
 
     

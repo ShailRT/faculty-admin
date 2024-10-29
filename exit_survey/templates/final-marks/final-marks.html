@@ -1,0 +1,139 @@
+{% extends 'base-dash.html' %}
+{% load custom_tags %}
+{% block title %}
+  Final Marks
+{% endblock title %}
+{% block content %}
+  <!-- Begin Page Content -->
+  <div class="container-fluid">
+    <!-- Page Heading -->
+    <h1 class="h3 mb-4 text-gray-800">
+      {% breadcrumbs as breadcrumb_list %}
+      <ol class="breadcrumb bg-transparent">
+        {% for name, url in breadcrumb_list %}
+          <li class="breadcrumb-item">
+            <a href="{{ url }}">{{ name }}</a>
+          </li>
+        {% endfor %}
+        <li class="breadcrumb-item">
+          <a>{{ session.department }} {{ session.session }}</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a href="{% url 'final-subjects' pk=session.uuid %}">Final Marks</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a>{{ subject.title }}</a>
+        </li>
+      </ol>
+    </h1>
+    <div class="container col-md-12">
+      <div class="row">
+        <div class="col-12 col-md-12 mb-4">
+          <div class="card shadow">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+              <h6 class="m-0 font-weight-bold text-primary">Sessional Table</h6>
+            </div>
+            <div class="card-body">
+              <form method="POST">
+                {% csrf_token %}
+                <table class="table table-striped-columns table-bordered">
+                  <thead>
+                    <tr>
+                      <th scope="col">Student Roll No.</th>
+                      <th scope="col">
+                        <div class="d-flex align-items-center">
+                          <span class="col-2">MM =</span>
+                          <input class="form-control col-9 ml-2"
+                                 name="max-marks"
+                                 type="number"
+                                 value="{{ data.max_marks }}"
+                                 placeholder="Maximum Marks" />
+                        </div>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for key, value in data.student.items %}
+                      <tr>
+                        <th scope="row">{{ key }}</th>
+                        <th scope="row">
+                          <input class="form-control"
+                                 name="{{ key }}"
+                                 type="number"
+                                 value="{{ value }}"
+                                 min="0"
+                                 max="30" />
+                        </th>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                {% if user.is_sessional_table_editing_permitted %}
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                {% endif %}
+              </form>
+              {% if not user.is_sessional_table_editing_permitted %}
+                <a data-toggle="modal" data-target="#accessRequestModal">
+                  <button class="btn btn-primary">Request Edit Access</button>
+                </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container col-md-12">
+      <div class="row">
+        <div class="col-12 col-md-12 mb-4">
+          <div class="card shadow">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+              <h6 class="m-0 font-weight-bold text-primary">CO Attainment</h6>
+            </div>
+            <div class="card-body">
+              <table class="table table-striped-columns table-bordered">
+                <thead>
+                  <tr>
+                    <th scope="col">No of students securing more than 50% marks</th>
+                    <th scope="col">{{ co_attainment.count }}</th>
+                  </tr>
+                  <tr>
+                    <th scope="col">Percentage of students securing more than 50% marks</th>
+                    <th scope="col">{{ co_attainment.percentage }}</th>
+                  </tr>
+                  <tr>
+                    <th scope="col">CO attainment Level</th>
+                    <th scope="col">{{ co_attainment.level }}</th>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /.container-fluid -->
+  <div class="modal fade"
+       id="accessRequestModal"
+       tabindex="-1"
+       role="dialog"
+       aria-labelledby="accessRequestModal"
+       aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Access Request</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body">Select "Send" below if you want to send access request for editing table.</div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+          <a class="btn btn-primary"
+             href="{% url 'sessional-table-edit-request' %}?table_uuid={{ table_uuid }}&field={{ field }}">Send</a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}

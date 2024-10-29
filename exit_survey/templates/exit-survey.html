@@ -1,113 +1,122 @@
-{% extends 'base-dash.html' %} {% block title %}Exit Survey{% endblock title %} {% block content %}
-
-<!-- Begin Page Content -->
-<div class="container-fluid">
-  <!-- Page Heading -->
-  <h1 class="h3 mb-4 text-gray-800">Exit Survey</h1>
-  <div class="container col-md-12">
-    <div class="row">
-      <div class="col-12 col-md-12 mb-4">
-        <div class="card shadow">
-          <div class="card-header py-3 d-flex flex-rowjustify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">
-              Create Exit Survey
-            </h6>
-          </div>
-          <div class="card-body">
-            <form method="POST">
-              {% csrf_token %}
-              <div class="container-fluid">
-                <div class="row mb-2">
-                  <div class="col-6">
-                    <label for="inputState" class="form-label">Session:</label><br />
-                    <select id="inputState" name="session" class="form-control border">
-                      <option class="active">Choose...</option>
-                      {% for session in sessions%}
-                        <option value="{{session.uuid}}">{{session.session}} {{session.department}} year-{{session.year}}</option>
-                      {% endfor %}
-                    </select>
-                  </div>
-                  <div class="col-6">
-                    <label for="inputState" class="form-label">Semester:</label><br />
-                    <select id="inputState" name="semester" class="form-control border">
-                      <option class="active">Choose...</option>
-                      <option value="I">1st</option>
-                      <option value="II">2nd</option>
-                      <option value="III">3rd</option>
-                      <option value="IV">4th</option>
-                      <option value="V">5th</option>
-                      <option value="VI">6th</option>
-                      <option value="VII">7th</option>
-                      <option value="VIII">8th</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="row mb-2">
-                  <div class="col-6">
-                    <label for="inputState" class="form-label">Department:</label><br />
-                    <select id="inputState" name="department" class="form-control border">
-                      <option class="active">Choose...</option>
-                      {% for dep in department_choices %}
-                        <option value="{{dep.0}}">{{dep.1}}</option>
-                      {% endfor %}
-                    </select>
-                  </div>
-                  <div class="col-6">
-                    <label for="inputState" class="form-label">Subjects:</label><br />
-                    <select data-live-search="true" id="inputState" name="subject"
-                      class="form-select selectpicker border mb-3 w-100">
-                      {% for subject in subjects %}
-                      <option value="{{subject.uuid}}">{{subject.code}}</option>
-                      {% endfor %}
-                    </select>
-                  </div>
-                </div>
-                <button type="submit" class="btn btn-primary">Submit</button>
-              </div>
-
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  {% if surveys %}
+{% extends 'base-dash.html' %}
+{% load custom_tags %}
+{% block title %}
+  Exit Survey
+{% endblock title %}
+{% block content %}
+  <!-- Begin Page Content -->
+  <div class="container-fluid">
+    <!-- Page Heading -->
+    <h1 class="h3 mb-4 text-gray-800">
+      {% breadcrumbs as breadcrumb_list %}
+      <ol class="breadcrumb bg-transparent">
+        {% for name, url in breadcrumb_list %}
+          <li class="breadcrumb-item">
+            <a href="{{ url }}">{{ name }}</a>
+          </li>
+        {% endfor %}
+      </ol>
+    </h1>
     <div class="container col-md-12">
       <div class="row">
         <div class="col-12 col-md-12 mb-4">
           <div class="card shadow">
-            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-              <h6 class="m-0 font-weight-bold text-primary">
-                Table List
-              </h6>
+            <div class="card-header py-3 d-flex flex-rowjustify-content-between">
+              <h6 class="m-0 font-weight-bold text-primary">Create Exit Survey</h6>
             </div>
             <div class="card-body">
-              <ul class="list-group">
-                {% for survey in surveys %}
-                <li class="list-group-item d-flex align-items-center justify-content-between">
-                  <div>
-                    {{survey.subject.title}} [{{survey.subject.code}}]
-                    <a href=""><span
-                        class="badge bg-primary rounded-pill text-white ml-2 p-2">{{survey.department}}</span></a>
-                    <a href=""><span
-                        class="badge bg-primary rounded-pill text-white p-2">{{survey.semester}}</span></a>
-                    <a href=""><span
-                        class="badge bg-primary rounded-pill text-white p-2">{{survey.session}}</span></a>
+              <form method="POST">
+                {% csrf_token %}
+                <div class="container-fluid">
+                  <div class="row mb-2">
+                    <div class="col-6">
+                      <label for="inputState" class="form-label">Session:</label>
+                      <br />
+                      <select id="inputState" name="session" class="form-control border">
+                        <option class="active">Choose...</option>
+                        {% for session in sessions %}
+                          <option value="{{ session.uuid }}">{{ session.session }} {{ session.department }} year-{{ session.year }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                    <div class="col-6">
+                      <label for="inputState" class="form-label">Semester:</label>
+                      <br />
+                      <select id="inputState" name="semester" class="form-control border">
+                        <option class="active">Choose...</option>
+                        <option value="I">1st</option>
+                        <option value="II">2nd</option>
+                        <option value="III">3rd</option>
+                        <option value="IV">4th</option>
+                        <option value="V">5th</option>
+                        <option value="VI">6th</option>
+                        <option value="VII">7th</option>
+                        <option value="VIII">8th</option>
+                      </select>
+                    </div>
                   </div>
-                  <div>
-                    <a href="{% url 'survey-student-list' pk=survey.id %}">Students List</a>
-                    
+                  <div class="row mb-2">
+                    <div class="col-6">
+                      <label for="inputState" class="form-label">Department:</label>
+                      <br />
+                      <select id="inputState" name="department" class="form-control border">
+                        <option class="active">Choose...</option>
+                        {% for dep in department_choices %}<option value="{{ dep.0 }}">{{ dep.1 }}</option>{% endfor %}
+                      </select>
+                    </div>
+                    <div class="col-6">
+                      <label for="inputState" class="form-label">Subjects:</label>
+                      <br />
+                      <select data-live-search="true"
+                              id="inputState"
+                              name="subject"
+                              class="form-select selectpicker border mb-3 w-100">
+                        {% for subject in subjects %}<option value="{{ subject.uuid }}">{{ subject.code }}</option>{% endfor %}
+                      </select>
+                    </div>
                   </div>
-                </li>
-                {% endfor %}
-              </ul>
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
       </div>
     </div>
-  {% endif %}
-</div>
-<!-- /.container-fluid -->
-
+    {% if surveys %}
+      <div class="container col-md-12">
+        <div class="row">
+          <div class="col-12 col-md-12 mb-4">
+            <div class="card shadow">
+              <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Table List</h6>
+              </div>
+              <div class="card-body">
+                <ul class="list-group">
+                  {% for survey in surveys %}
+                    <li class="list-group-item d-flex align-items-center justify-content-between">
+                      <div>
+                        {{ survey.subject.title }} [{{ survey.subject.code }}]
+                        <a href=""><span class="badge bg-secondary rounded-pill text-white ml-2 p-2">{{ survey.department }}</span></a>
+                        <a href=""><span class="badge bg-secondary rounded-pill text-white p-2">{{ survey.semester }}</span></a>
+                        <a href=""><span class="badge bg-secondary rounded-pill text-white p-2">{{ survey.session }}</span></a>
+                      </div>
+                      <div>
+                        <a href="{% url 'survey-student-list' pk=survey.id %}">
+                          <button type="button" class="btn btn-primary">
+                            Students <i class="fa-solid fa-arrow-right"></i>
+                          </button>
+                        </a>
+                      </div>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+  <!-- /.container-fluid -->
 {% endblock content %}

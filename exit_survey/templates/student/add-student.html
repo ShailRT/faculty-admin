@@ -1,100 +1,101 @@
-{% extends 'base-dash.html' %} {% block title %}Session Student List {% endblock title %} {% block content %}
-
-<!-- Begin Page Content -->
-<div class="container-fluid">
-  <!-- Page Heading -->
-  <h1 class="h3 mb-4 text-gray-800">Session Student List</h1>
-  <div class="container col-md-12">
-    <div class="row">
-      <div class="col-12 col-md-12 mb-4">
-        <div class="card shadow">
-          <div class="card-header py-3 d-flex flex-rowjustify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">
-              Create Student Information
-            </h6>
+{% extends 'base-dash.html' %}
+{% load custom_tags %}
+{% block title %}
+  Session Student List
+{% endblock title %}
+{% block content %}
+  <!-- Begin Page Content -->
+  <div class="container-fluid">
+    <!-- Page Heading -->
+    <h1 class="h3 mb-4 text-gray-800">
+      {% breadcrumbs as breadcrumb_list %}
+      <ol class="breadcrumb bg-transparent">
+        {% for name, url in breadcrumb_list %}
+          <li class="breadcrumb-item">
+            <a href="{{ url }}">{{ name }}</a>
+          </li>
+        {% endfor %}
+        <li class="breadcrumb-item">
+          <a>{{ session.department }} {{ session.session }}</a>
+        </li>
+      </ol>
+    </h1>
+    <div class="container col-md-12">
+      <div class="row">
+        <div class="col-12 col-md-12 mb-4">
+          <div class="card shadow">
+            <div class="card-header py-3 d-flex flex-rowjustify-content-between">
+              <h6 class="m-0 font-weight-bold text-primary">Create Student Information</h6>
+            </div>
+            <div class="card-body">
+              <h4></h4>
+              <form method="POST">
+                {% csrf_token %}
+                <div class="container-fluid">
+                  <div class="row mb-2">
+                    <div class="col-6">
+                      <label for="id_session" class="form-label">University Roll No:</label>
+                      <input type="text"
+                             class="form-control"
+                             name="university_roll_no"
+                             maxlength="13"
+                             required=""
+                             id="uni_rollno" />
+                    </div>
+                    <div class="col-6">
+                      <label for="id_session" class="form-label">First Name:</label>
+                      <input type="text"
+                             class="form-control"
+                             name="first_name"
+                             required=""
+                             id="first_name" />
+                    </div>
+                  </div>
+                  <div class="row mb-2">
+                    <div class="col-6">
+                      <label for="last_name" class="form-label">Last Name:</label>
+                      <input type="text"
+                             class="form-control"
+                             name="last_name"
+                             required=""
+                             id="last_name" />
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary mt-2">Submit</button>
+                </div>
+              </form>
+            </div>
           </div>
-          <div class="card-body">
-            <h4></h4>
-            <form method="POST">
-              {% csrf_token %}
-              <div class="container-fluid">
-                <div class="row mb-2">
-                  <div class="col-6">
-                    <label for="id_session" class="form-label">University Roll No:</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      name="university_roll_no"
-                      maxlength="13"
-                      required=""
-                      id="uni_rollno"
-                    />
-                  </div>
-                  <div class="col-6">
-                    <label for="id_session" class="form-label">First Name:</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      name="first_name"
-                      required=""
-                      id="first_name"
-                    />
-                  </div>
-                </div>
-                <div class="row mb-2">
-                  <div class="col-6">
-                    <label for="last_name" class="form-label">Last Name:</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      name="last_name"
-                      required=""
-                      id="last_name"
-                    />
-                  </div>
-                </div>
-                <button type="submit" class="btn btn-primary mt-2">
-                  Submit
-                </button>
-              </div>
-            </form>
+        </div>
+      </div>
+    </div>
+    <div class="container col-md-12">
+      <div class="row">
+        <div class="col-12 col-md-12 mb-4">
+          <div class="card shadow">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+              <h6 class="m-0 font-weight-bold text-primary">{{ session.department }} {{ session.session }}</h6>
+            </div>
+            <div class="card-body">
+              <table class="table table-striped-columns table-bordered pr-2">
+                <tr>
+                  <th>Roll No.</th>
+                  <th>First Name</th>
+                  <th>Last Name</th>
+                </tr>
+                {% for student in session.students.all %}
+                  <tr>
+                    <td>{{ student.university_roll_no }}</td>
+                    <td>{{ student.first_name }}</td>
+                    <td>{{ student.last_name }}</td>
+                  </tr>
+                {% endfor %}
+              </table>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-  <div class="container col-md-12">
-    <div class="row">
-      <div class="col-12 col-md-12 mb-4">
-        <div class="card shadow">
-          <div
-            class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
-          >
-            <h6 class="m-0 font-weight-bold text-primary">
-              {{session.department}} {{session.session}}
-            </h6>
-          </div>
-          <div class="card-body">
-            <table class="table table-striped-columns table-bordered pr-2">
-              <tr>
-                <th>Roll No.</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-              </tr>
-              {% for student in session.students.all %}
-              <tr>
-                <td>{{student.university_roll_no}}</td>
-                <td>{{student.first_name}}</td>
-                <td>{{student.last_name}}</td>
-              </tr>
-              {% endfor %}
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- /.container-fluid -->
-
+  <!-- /.container-fluid -->
 {% endblock content %}

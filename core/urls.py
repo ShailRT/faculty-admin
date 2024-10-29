@@ -14,7 +14,7 @@ urlpatterns = [
     path('add-subject/', views.add_subject, name='add-subject'),
     path('remove-subject/<str:pk>/', views.remove_subject, name='remove-subject'),
     path('co-po-table/', views.co_po_table, name="co-po-table"),
-    path('co-po-table/download-table/<str:pk>/', views.download_table, name="download-table"),
+    path('co-po-table/download-table/<str:sub>/<str:dep>/<str:session>/', views.download_table, name="download-table"),
     path('add-co/', views.add_co, name='add-co'),
     path('delete-co/<str:pk>/', views.delete_co, name='delete-co'),
 

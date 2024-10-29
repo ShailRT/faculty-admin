@@ -18,9 +18,11 @@
                                       <label for="inputState" class="form-label">Programs:</label><br>
                                       <select data-live-search="true" id="inputState" name="selected_program" class="form-select selectpicker border mb-3">
                                         
-                                        <option value="{{selected_program.uuid}}" selected>{% if selected_program != '' and selected_program != None %}{{selected_program}}{%else %}Choose...{% endif %}</option>
+                                        <option value="{{selected_program}}" selected>{% if selected_program != '' and selected_program != None %}{{selected_program}}{%else %}Choose...{% endif %}</option>
                                         {% for program in programs %}
+                                            {% if program != selected_program %}
                                             <option value="{{program}}">{{program}}</option>
+                                            {% endif %}
                                         {% endfor %}
                                       </select>
                                     </div>

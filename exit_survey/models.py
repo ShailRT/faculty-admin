@@ -9,7 +9,8 @@ class StudentInfo(models.Model):
     university_roll_no = models.CharField(max_length=120, unique=True)
     first_name = models.CharField(max_length=120)
     last_name = models.CharField(max_length=120)
-    co_response = models.JSONField(blank=True, null=True)
+    co_response = models.JSONField(blank=True, null=True, default=dict)
+    final_marks = models.JSONField(blank=True, null=True, default=dict)
 
     def __str__(self):
         return self.university_roll_no
@@ -19,6 +20,7 @@ class SessionStudent(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     faculty = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     session = models.CharField(max_length=10)
+    final_subjects = models.ManyToManyField(Subject)
     department = models.CharField(choices=department_choices, max_length=10)
     program = models.CharField(max_length=120)
     students = models.ManyToManyField(StudentInfo)
