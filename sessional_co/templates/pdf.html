@@ -10,10 +10,9 @@
   <body>
     <style>
       table {
-        max-width: 500px;
+        width: 100%;
       }
-      td,
-      th {
+      th, td {
         border: solid 1px black;
         padding: 1px;
         text-align: center;
@@ -65,17 +64,19 @@
       <thead>
         <tr>
           <th scope="col" >{{ data.header.0 }}</th>
-          <th scope="col" >CO</th>
+          <th scope="col" style="width:40px;">CO</th>
           {% for header in data.header.1 %}
             <th>
-              <table class="w-100">
+              {% comment %} <th style="width:200px;"> {% endcomment %}
+              <table>
+                {% comment %} <table style="width:100px;"> {% endcomment %}
                 {% for key, value in header.items %}
                 <tr>
                   <th colspan="{{value| length}}">{{key}}</th>
                 </tr>
                 <tr>
                   {% for val in value %}
-                    <td>{{val}}</td>
+                    <td >{{val}}</td>
                   {% endfor %}
                 </tr>
                 {% endfor %}
@@ -90,16 +91,17 @@
           <th>
             {{tbkey}}
           </th>
-          <th colspan="5">
+          <th colspan="{{ques_count}}">
             <table class="w-100">
               {% for cokey, coval in tbvalue.items %}
               <tr>
-                <td>
+                <td style="width:40px;">
                   {{cokey}}
                 </td>
                 {% for qno, qval in coval.items %}
                   {% for marks in qval %}
                 <td>
+                  {% comment %} <td style="width:34px;"> {% endcomment %}
                   {{marks}}
                  
                 </td>

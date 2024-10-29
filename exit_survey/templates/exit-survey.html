@@ -102,6 +102,11 @@
                         <a href=""><span class="badge bg-secondary rounded-pill text-white p-2">{{ survey.session }}</span></a>
                       </div>
                       <div>
+                        {% comment %} <a href="{% url 'exit-survey-form' pk=survey.slug %}" target="_blank"> {% endcomment %}
+                          <button type="button" class="btn btn-primary" onclick="javascript:(function() { navigator.clipboard.writeText('localhost:8000{% url 'exit-survey-form' pk=survey.slug %}'); alert('Link Copied: localhost:8000{% url 'exit-survey-form' pk=survey.slug %}' ); })()">
+                            Link <i class="fa-solid fa-link"></i>
+                          </button>
+                        {% comment %} </a> {% endcomment %}
                         <a href="{% url 'survey-student-list' pk=survey.id %}">
                           <button type="button" class="btn btn-primary">
                             Students <i class="fa-solid fa-arrow-right"></i>

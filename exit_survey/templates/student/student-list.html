@@ -96,10 +96,10 @@
                         <a href=""><span class="badge bg-primary rounded-pill text-white p-2">{{ survey.session }}</span></a>
                       </div>
                       <div>
-                        <a href="{% url 'view-student' pk=session.uuid %}">
+                        <a href="{% url 'view-student' pk=session.uuid %}" class="text-decoration-none">
                           <button type="button" class="btn btn-primary">Students List</button>
                         </a>
-                        <a href="{% url 'final-subjects' pk=session.uuid %}">
+                        <a href="{% url 'final-subjects' pk=session.uuid %}" class="text-decoration-none">
                           <button type="button" class="btn btn-primary">Final Marks</button>
                         </a>
                       </div>

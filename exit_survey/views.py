@@ -126,14 +126,18 @@ def view_student(request, pk):
         form = CreateStudentInfoForm(request.POST)
         if form.is_valid():
             form = form.save(commit=False)
-            latest_student = session.students.all()[0]
-            co_response = latest_student.co_response
-            for key, value in co_response.items():
-                for ke in value.keys():
-                    co_response[key][ke] = 0
-            final_marks = latest_student.final_marks
-            for key in final_marks.keys():
-                final_marks[key]['scored'] = 0
+            co_response, final_marks = {}, {}
+
+            if len(session.students.all()) > 0:
+                latest_student = session.students.all()[0]
+                co_response = latest_student.co_response
+                for key, value in co_response.items():
+                    for ke in value.keys():
+                        co_response[key][ke] = 0
+                final_marks = latest_student.final_marks
+                for key in final_marks.keys():
+                    final_marks[key]['scored'] = 0
+            
             form.co_response, form.final_marks = co_response, final_marks
             form.save() 
             student = StudentInfo.objects.filter(university_roll_no=request.POST['university_roll_no']).first()

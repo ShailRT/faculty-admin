@@ -184,15 +184,21 @@ def test_pdf(request, pk):
     cos = []
     data = {}
     table_header = ['R.N']
+    ques_count = 0
     if field == 'ct1':
         table_dict = table.ct1
         table_header.append([{'Question-1': ['a', 'b', 'c', 'd', 'e']}, {'Question-2': ['a', 'b', 'c', 'd', 'e']}, {'Question-3': ['a', 'b', 'c']}])
+        ques_count = 4
     elif field == 'ct2':
         table_dict = table.ct2
         table_header.append([{'Question-1': ['a', 'b', 'c', 'd', 'e']}, {'Question-2': ['a', 'b', 'c', 'd', 'e']}, {'Question-3': ['a', 'b', 'c']}])
+        ques_count = 4
+
     elif field == 'put':
         table_dict = table.put
         table_header.append([{'Question-1': ['a', 'b', 'c', 'd', 'e', 'f', 'g']}, {'Question-2': ['a', 'b', 'c', 'd', 'e', 'f', 'g']}, {'Question-3': ['a', 'b']}, {'Question-4': ['a', 'b']}, {'Question-5': ['a', 'b']}, {'Question-6': ['a', 'b']}, {'Question-7': ['a', 'b']}])
+        ques_count = 8
+
     elif field == 'ant':
         table_dict = table.assignment_tutorial
     
@@ -207,9 +213,6 @@ def test_pdf(request, pk):
 
     data['header'], data['body'] = table_header, table_body
 
-    result_calc = calculate_sessional_attainment(table)
-    print(result_calc)
-    
 
     # max_marks = {}
     # co_attainment = {}
@@ -264,6 +267,7 @@ def test_pdf(request, pk):
         'table_faculty_name': table.faculty.first_name+' '+table.faculty.last_name,
         'table_subject': table.subject,
         'table_department': table.faculty.department,
+        'ques_count': ques_count,
         # 'co_attainment': co_attainment,
         # 'split_value': split_value,
 

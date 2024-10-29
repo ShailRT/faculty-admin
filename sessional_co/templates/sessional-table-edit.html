@@ -24,13 +24,10 @@ subject.title|capfirst }} Table {% endblock title %} {% block content %}
           <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
             <h6 class="m-0 font-weight-bold text-primary">
               Sessional Table - {{ field|upper }}
-              <a href="{% url 'sessional-test-pdf' pk=table_uuid %}?field={{field}}"><span class="badge bg-success rounded-pill text-white p-2">DOWNLOAD</span></a>
-              <button>
-
-              </button>
             </h6>
+            <a href="{% url 'sessional-test-pdf' pk=table_uuid %}?field={{field}}"><span class="badge bg-success rounded-pill text-white p-2">DOWNLOAD</a>
           </div>
-          <div class="card-body">
+          <div class="card-body" style="overflow: auto;">
             <form method="post">
               {% csrf_token %}
               <table class="table table-striped-columns table-bordered">
@@ -87,7 +84,7 @@ subject.title|capfirst }} Table {% endblock title %} {% block content %}
                 </tbody>
               </table>
 
-              <h3>Max marks </h3>
+              <h4>Max marks :</h4>
               <div class="row mb-4">
               {% for co, marks in table_max_marks.items %}
               <div class="col-6">
