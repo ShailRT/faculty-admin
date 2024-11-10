@@ -1,10 +1,12 @@
 from django.shortcuts import render, redirect
+from django.http import HttpResponse
 from django.utils.text import slugify
 from .forms import SessionStudentCreateForm, CreateStudentInfoForm, ExitSurveyCreateForm
 from django.contrib import messages
 from .models import ExitSurvey, StudentInfo, SessionStudent
 from core.models import Subject, CourseOutcome
 from sessional_co.models import SessionalTable
+import csv
 
 
 department_choices = ( ('IT', 'IT' ), ('CS', 'CS'), ('AI/ML', 'AI/ML'), ('IOT', 'IOT'))
@@ -52,9 +54,11 @@ def exit_survey(request):
         return redirect('exit-survey')
         
     form = ExitSurveyCreateForm()
-    subjects = Subject.objects.all()
-    sessions = SessionStudent.objects.filter(department=request.user.department)
+    subjects = request.user.subjects.all()
+    sessions = SessionStudent.objects.filter(department=request.user.department, faculty=request.user)
     surveys = ExitSurvey.objects.filter(faculty=request.user)
+    if request.user.is_admin:
+        surveys = ExitSurvey.objects.all()
 
     context = {
         'subjects': subjects,
@@ -111,6 +115,8 @@ def session_list(request):
             print(form.errors)
         return redirect('session-list')
     session_list = SessionStudent.objects.filter(faculty=request.user)
+    if request.user.is_admin:
+        session_list = SessionStudent.objects.all()
     form = SessionStudentCreateForm()
     context = {
         'session_list': session_list,
@@ -123,6 +129,7 @@ def session_list(request):
 def view_student(request, pk):
     session = SessionStudent.objects.filter(uuid=pk).first()
     if request.method == "POST":
+        student = StudentInfo.objects.filter(university_roll_no=request.POST['university_roll_no'])
         form = CreateStudentInfoForm(request.POST)
         if form.is_valid():
             form = form.save(commit=False)
@@ -157,6 +164,23 @@ def view_student(request, pk):
                 table.save()
             
             messages.info(request, 'Student added')
+
+        elif len(student)>0 and student.first() not in session.students.all():
+            student = StudentInfo.objects.filter(university_roll_no=request.POST['university_roll_no']).first()
+            session.students.add(student)
+            session.save()
+            tables = SessionalTable.objects.filter(session=session)
+            for table in tables:
+                for key in table.ct1.keys():
+                    table.ct1[key][student.university_roll_no] = ""
+                for key in table.ct2.keys():
+                    table.ct2[key][student.university_roll_no] = ""
+                for key in table.put.keys():
+                    table.put[key][student.university_roll_no] = ""
+                for key in table.assignment_tutorial.keys():
+                    table.assignment_tutorial[key][student.university_roll_no] = ""
+                print('table', table.ct1)
+                table.save()
         else:
             print(form.errors)
         return redirect("view-student", pk=pk)
@@ -241,3 +265,42 @@ def final_marks(request, pk, sub):
     
 
 
+def student_csv(request):
+    if request.method == 'POST' and request.FILES['csv_file']:
+        csv_file = request.FILES['csv_file']
+        
+        # Ensure the file is a CSV
+        if not csv_file.name.endswith('.csv'):
+            return HttpResponse("Please upload a CSV file.")
+        
+        # Decode the file
+        decoded_file = csv_file.read().decode('utf-8').splitlines()
+        reader = csv.reader(decoded_file) 
+
+        # Iterate over the rows in the CSV file and create Product instances
+        session = SessionStudent.objects.filter(uuid=request.POST['session']).first()
+
+        try:
+            stu_count = 0
+            for row in reader:
+                stu_count+=1
+                university_roll_no, first_name, last_name = row
+                student = StudentInfo.objects.filter(university_roll_no=university_roll_no)
+                if len(student)>0 and student.first() not in session.students.all():
+                    session.students.add(student.first())
+                    session.save()
+                else:
+                    student = StudentInfo.objects.create(university_roll_no=university_roll_no, first_name=first_name, last_name=last_name)
+                    student.save()
+                    new_student = StudentInfo.objects.filter(university_roll_no=university_roll_no).first()
+                    session = SessionStudent.objects.filter(uuid=request.POST['session']).first()
+                    session.students.add(new_student)
+                    session.save()
+            messages.info(request, f'{stu_count} student added')
+        except Exception as e:
+            print("upload student failed with ", e)
+
+
+        return redirect("view-student", pk=session.uuid)
+    sessions = SessionStudent.objects.all()
+    return render(request, "student-upload.html", {'sessions': sessions})

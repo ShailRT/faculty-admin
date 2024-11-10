@@ -27,6 +27,7 @@ def save_pdf(params:dict):
 
 
 def calculate_sessional_attainment(table):
+    print("table", table)
     cos = CourseOutcome.objects.filter(subject=table.subject)
     co_attainment = {}
     for co in cos:

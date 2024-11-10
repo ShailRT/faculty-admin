@@ -1,0 +1,74 @@
+{% extends 'base-dash.html' %}
+{% load custom_tags %}
+{% block title %}
+  Session List
+{% endblock title %}
+{% block content %}
+  <!-- Begin Page Content -->
+  <div class="container-fluid">
+    <!-- Page Heading -->
+    <h1 class="h3 mb-4 text-gray-800">
+      {% breadcrumbs as breadcrumb_list %}
+      <ol class="breadcrumb bg-transparent">
+        {% for name, url in breadcrumb_list %}
+          <li class="breadcrumb-item">
+            <a href="{{ url }}">{{ name }}</a>
+          </li>
+        {% endfor %}
+      </ol>
+    </h1>
+      <div class="container col-md-12">
+        <div class="row">
+          <div class="col-12 col-md-12 mb-4">
+            <div class="card shadow">
+              <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Faculty List</h6>
+                <form method="POST">
+                  {% csrf_token %}
+                
+                <button class="submit" type="submit" >Submit</button>
+              </div>
+              <div class="card-body">
+                <ul class="list-group">
+                  {% for fac in faculty %}
+                    <li class="list-group-item d-flex align-items-center justify-content-between">
+                      <div class="d-flex">
+                        <div>
+
+                          {{ fac.first_name }} {{ fac.last_name }}
+                          <a href=""><span class="badge bg-primary rounded-pill text-white ml-2 p-2">{{ fac.department }}</span></a>
+                        </div>
+                        <div class="form-check ml-2">
+                          <input class="form-check-input" type="checkbox" value="{% if fac.is_login_permitted %}checked{%else %}unchecked{%endif %}" id="defaultCheck1" name="login_check_{{fac.id}}" {% if fac.is_login_permitted %}checked{%endif %}>
+                          <label class="form-check-label" for="defaultCheck1">
+                            Is login permitted
+                          </label>
+                          
+                        </div>
+                        <div class="form-check ml-2">
+                          <input class="form-check-input" name="edittablecheck_{{fac.id}}" type="checkbox" value="{% if fac.is_editing_table_permitted %}checked{%else %}unchecked{%endif %}" id="defaultCheck1" {% if fac.is_editing_table_permitted %}checked{%endif %}>
+                          <label class="form-check-label" for="defaultCheck1">
+                            Is editing table permitted
+                          </label>
+                          
+                        </div>
+                        <div class="form-check ml-2">
+                          <input class="form-check-input" name="editsessionalcheck_{{fac.id}}" type="checkbox" value="{% if fac.is_sessional_table_editing_permitted %}checked{%else %}unchecked{%endif %}" id="defaultCheck1" {% if fac.is_sessional_table_editing_permitted %}checked{%endif %} >
+                          <label class="form-check-label" for="defaultCheck1">
+                            Is sessional table editing permitted
+                          </label>
+                          
+                        </div>
+                      </div>
+                    </li>
+                  {% endfor %}
+                </form>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+  <!-- /.container-fluid -->
+{% endblock content %}

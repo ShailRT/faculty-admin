@@ -6,4 +6,5 @@ urlpatterns = [
     path('student-list/<str:pk>/', views.view_student, name="view-student"),
     path('final-marks/<str:pk>/', views.final_subjects, name="final-subjects"),
     path('final-marks/<str:pk>/<str:sub>/', views.final_marks, name="final-marks"),
+    path('upload-students', views.student_csv, name="student-csv")
 ]

@@ -58,31 +58,35 @@
         <!-- Divider -->
         <hr class="sidebar-divider" />
         <!-- Heading -->
-        <div class="sidebar-heading">Subjects</div>
-        <!-- Nav Item - Pages Collapse Menu -->
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'add-subject' %}" aria-expanded="true">
-            <i class="fa-solid fa-book"></i>
-            <span>Add Subjects</span>
-          </a>
-        </li>
-        <!-- Divider -->
-        <hr class="sidebar-divider" />
+        {% if not user.is_admin %}
+          <div class="sidebar-heading">Subjects</div>
+          <!-- Nav Item - Pages Collapse Menu -->
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'add-subject' %}" aria-expanded="true">
+              <i class="fa-solid fa-book"></i>
+              <span>Add Subjects</span>
+            </a>
+          </li>
+          <!-- Divider -->
+          <hr class="sidebar-divider" />
+        {% endif %}
         <!-- Heading -->
         <div class="sidebar-heading">CO/PO</div>
         <!-- Nav Item - Pages Collapse Menu -->
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'add-co' %}">
-            <i class="fas fa-fw fa-pen"></i>
-            <span>CO</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link collapsed" href="{% url 'add-po' %}">
-            <i class="fa-solid fa-graduation-cap"></i>
-            <span>PO</span>
-          </a>
-        </li>
+         {% if user.is_admin %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'add-co' %}">
+              <i class="fas fa-fw fa-pen"></i>
+              <span>CO</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link collapsed" href="{% url 'add-po' %}">
+              <i class="fa-solid fa-graduation-cap"></i>
+              <span>PO</span>
+            </a>
+          </li>
+        {% endif %}
         <li class="nav-item">
           <a class="nav-link collapsed" href="{% url 'co-po-table' %}">
             <i class="fas fa-fw fa-table"></i>

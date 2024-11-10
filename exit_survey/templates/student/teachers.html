@@ -1,0 +1,117 @@
+{% extends 'base-dash.html' %}
+{% load custom_tags %}
+{% block title %}
+  Session List
+{% endblock title %}
+{% block content %}
+  <!-- Begin Page Content -->
+  <div class="container-fluid">
+    <!-- Page Heading -->
+    <h1 class="h3 mb-4 text-gray-800">
+      {% breadcrumbs as breadcrumb_list %}
+      <ol class="breadcrumb bg-transparent">
+        {% for name, url in breadcrumb_list %}
+          <li class="breadcrumb-item">
+            <a href="{{ url }}">{{ name }}</a>
+          </li>
+        {% endfor %}
+      </ol>
+    </h1>
+    <div class="container col-md-12">
+      <div class="row">
+        <div class="col-12 col-md-12 mb-4">
+          <div class="card shadow">
+            <div class="card-header py-3 d-flex flex-rowjustify-content-between">
+              <h6 class="m-0 font-weight-bold text-primary">Create Student Information</h6>
+            </div>
+            <div class="card-body">
+              <h4></h4>
+              <form method="POST">
+                {% csrf_token %}
+                <div class="container-fluid">
+                  <div class="row mb-2">
+                    <div class="col-6">
+                      <label for="id_session" class="form-label">Session:</label>
+                      <input type="text"
+                             class="form-control"
+                             name="session"
+                             maxlength="8"
+                             required=""
+                             id="id_session" />
+                    </div>
+                    <div class="col-6">
+                      <label for="inputState" class="form-label">Program:</label>
+                      <br />
+                      <select id="inputState" name="program" class="form-control border">
+                        <option class="active">Choose...</option>
+                        {% for prog in program_choices %}<option value="{{ prog.0 }}">{{ prog.1 }}</option>{% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                  <div class="row mb-2">
+                    <div class="col-6">
+                      <label for="inputState" class="form-label">Year:</label>
+                      <br />
+                      <select id="inputState" name="year" class="form-control border">
+                        <option class="active">Choose...</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                      </select>
+                    </div>
+                    <div class="col-6">
+                      <label for="inputState" class="form-label">Department:</label>
+                      <br />
+                      <select id="inputState" name="department" class="form-control border">
+                        <option class="active">Choose...</option>
+                        {% for dep in department_choices %}<option value="{{ dep.0 }}">{{ dep.1 }}</option>{% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary mt-2">Submit</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% if session_list %}
+      <div class="container col-md-12">
+        <div class="row">
+          <div class="col-12 col-md-12 mb-4">
+            <div class="card shadow">
+              <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Session student list</h6>
+              </div>
+              <div class="card-body">
+                <ul class="list-group">
+                  {% for session in session_list %}
+                    <li class="list-group-item d-flex align-items-center justify-content-between">
+                      <div>
+                        {{ session.session }} [{{ session.department }}]
+                        <a href=""><span class="badge bg-primary rounded-pill text-white ml-2 p-2">{{ survey.department }}</span></a>
+                        <a href=""><span class="badge bg-primary rounded-pill text-white p-2">{{ survey.semester }}</span></a>
+                        <a href=""><span class="badge bg-primary rounded-pill text-white p-2">{{ survey.session }}</span></a>
+                      </div>
+                      <div>
+                        <a href="{% url 'view-student' pk=session.uuid %}" class="text-decoration-none">
+                          <button type="button" class="btn btn-primary">Students List</button>
+                        </a>
+                        <a href="{% url 'final-subjects' pk=session.uuid %}" class="text-decoration-none">
+                          <button type="button" class="btn btn-primary">Final Marks</button>
+                        </a>
+                      </div>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+  <!-- /.container-fluid -->
+{% endblock content %}

@@ -21,5 +21,6 @@ urlpatterns = [
     path('add-po/', views.add_po, name='add-po'),
     path('table-edit-request/', views.table_edit_request, name="table-edit-request"),
 
-    path('sessional-table/', include('sessional_co.urls'))
+    path('sessional-table/', include('sessional_co.urls')),
+    path('faculty/', views.teachers, name="teacher-list")
 ]

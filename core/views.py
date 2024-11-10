@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as auth_login
 from .forms import CustomUserForm, ProgramOutcomeForm
-from .models import Subject, CourseOutcome, ProgramOutcome, ProgramEducationalObjective, ProgramSpecificOutcome, FacultyInfo, College, AccessRequest
+from .models import CustomUser, Subject, CourseOutcome, ProgramOutcome, ProgramEducationalObjective, ProgramSpecificOutcome, FacultyInfo, College, AccessRequest
 from xhtml2pdf import pisa
 from django.template.loader import get_template
 from .helper import get_average_attainment
@@ -70,11 +70,14 @@ def index(request):
     sessions = SessionStudent.objects.filter(faculty=user)
     sessionals = SessionalTable.objects.filter(faculty=user)
     surveys = ExitSurvey.objects.filter(faculty=user)
+    add_student = False
+    if len(sessions)>0 and not sessions.first().students.count()>0:
+        add_student = True
     
     profile_status = {
         'Add Your Subjects': user.subjects.count() > 0,
         'Create Session': len(sessions)>0,
-        'Add Students to Your Sessions': sessions.first().students.count()>0,
+        'Add Students to Your Sessions': add_student,
         'Add Sessional Marks': len(sessionals)>0,
         'Create Surveys': len(surveys)>0,
     }
@@ -134,8 +137,11 @@ def co_po_table(request):
         return redirect(f'/co-po-table?subject_uuid={subject_uuid}&selected_department={selected_department}&session_uuid={session_uuid}')
     else:
         subjects = request.user.subjects.all()
-        selected_subject = None
         session_list = SessionStudent.objects.filter(faculty=request.user)
+        if request.user.is_admin:
+            subjects = Subject.objects.all()
+            session_list = SessionStudent.objects.all()
+        selected_subject = None
         selected_session = None
         departments =  department_choices
         selected_department = request.GET.get('selected_department')
@@ -339,4 +345,11 @@ def table_edit_request(request):
     selected_department = request.GET.get('selected_department')
     
     return redirect(f'/co-po-table?subject_uuid={subject_uuid}&selected_department={selected_department}')
-            
+
+def teachers(request):
+                
+    faculty = CustomUser.objects.filter(is_admin=False, is_superuser=False)   
+    context = {
+        'faculty': faculty
+    }     
+    return render(request, 'teacher/teachers.html', context) 

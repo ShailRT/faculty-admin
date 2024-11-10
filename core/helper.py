@@ -5,6 +5,7 @@ from sessional_co.helpers import calculate_sessional_attainment
 def get_average_attainment(subject, session):
     
     # Get Internal Attainment 
+    print("session", session)
     session_co = SessionalTable.objects.filter(session=session).first()
     internal_attainment = calculate_sessional_attainment(session_co)
 

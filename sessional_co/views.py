@@ -100,8 +100,11 @@ def sessional_list(request):
         
     form = SessionalTableCreateForm()
     sessions = SessionStudent.objects.all()
-    subjects = Subject.objects.all()
+    subjects = request.user.subjects.all()
     sessionals = SessionalTable.objects.filter(faculty=request.user)
+    if request.user.is_admin:
+       sessionals = SessionalTable.objects.all()
+
     context = {
         'subjects': subjects,
         'sessionals': sessionals,
