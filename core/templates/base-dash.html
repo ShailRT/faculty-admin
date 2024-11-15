@@ -70,6 +70,18 @@
           <!-- Divider -->
           <hr class="sidebar-divider" />
         {% endif %}
+        {% if  user.is_admin %}
+          <div class="sidebar-heading">Faculty</div>
+          <!-- Nav Item - Pages Collapse Menu -->
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'teacher-list' %}" aria-expanded="true">
+              <i class="fa-solid fa-book"></i>
+              <span>View Faculty</span>
+            </a>
+          </li>
+          <!-- Divider -->
+          <hr class="sidebar-divider" />
+        {% endif %}
         <!-- Heading -->
         <div class="sidebar-heading">CO/PO</div>
         <!-- Nav Item - Pages Collapse Menu -->

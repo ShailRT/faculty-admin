@@ -347,8 +347,15 @@ def table_edit_request(request):
     return redirect(f'/co-po-table?subject_uuid={subject_uuid}&selected_department={selected_department}')
 
 def teachers(request):
-                
     faculty = CustomUser.objects.filter(is_admin=False, is_superuser=False)   
+    if request.method == "POST":
+        print(request.POST)
+        for fac in faculty:
+            fac.is_login_permitted = True if f'login_check_{fac.id}' in request.POST else False
+            fac.is_editing_table_permitted = True if f'edittablecheck_{fac.id}' in request.POST else False
+            fac.is_sessional_table_editing_permitted = True if f'editsessionalcheck_{fac.id}' in request.POST else False
+            fac.save()
+        messages.info(request, "Faculty permissions successfully saved")   
     context = {
         'faculty': faculty
     }     
