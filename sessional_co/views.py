@@ -116,6 +116,7 @@ def sessional_list(request):
 def sessional_table_edit(request, pk, field):
     table = SessionalTable.objects.filter(uuid=pk).first()
     subject = table.subject
+    cos = CourseOutcome.objects.filter(subject=subject)
     table_header = ['R.N']
     if field == 'ct1':
         table_dict = table.ct1
@@ -127,19 +128,21 @@ def sessional_table_edit(request, pk, field):
         table_dict = table.put
         table_header.append([{'Question-1': ['a', 'b', 'c', 'd', 'e', 'f', 'g']}, {'Question-2': ['a', 'b', 'c', 'd', 'e', 'f', 'g']}, {'Question-3': ['a', 'b']}, {'Question-4': ['a', 'b']}, {'Question-5': ['a', 'b']}, {'Question-6': ['a', 'b']}, {'Question-7': ['a', 'b']}])
     elif field == 'ant':
+        table_header.append([f"CO{x.number}" for x in cos])
         table_dict = table.assignment_tutorial
+        table_body = table_dict
 
-    table_body = {}
-    for key, value in table_dict.items():
-        table_body[key] = {}
-        for ke, val in value.items():
-            table_body[key][ke] = {}
-            for k, v in val.items():
-                table_body[key][ke][k] = v.values()
     
-    print("table HEader", table_header)
-    print("-------")
-    print("table body", table_body)
+    if field!='ant':
+        table_body = {}
+        for key, value in table_dict.items():
+            table_body[key] = {}
+            for ke, val in value.items():
+                table_body[key][ke] = {}
+                print("key", ke, "val", val)
+                for k, v in val.items():
+                    table_body[key][ke][k] = v.values()
+    
     
     context = {
         'table_header': table_header,
@@ -155,26 +158,30 @@ def sessional_table_edit(request, pk, field):
         if field == 'ct1':
             table_dict = table.ct1
         elif field == 'ct2':
-            table_dict = table.ct2
+            table_dict = table.ct2 
         elif field == 'put':
             table_dict = table.put
         elif field == 'ant':
             table_dict = table.assignment_tutorial
-        
         for rollno, rollvalue in table_dict.items():
             for cono, coval in rollvalue.items():
-                for qno, qval in coval.items():
-                    temp = 0
-                    for marks in qval.keys():
-                        table_dict[rollno][cono][qno][marks] = int(request.POST[f'{rollno}_{cono}_{qno}_{temp}'])
-                        temp+=1
+                if field == 'ant':
+                    table_dict[rollno][cono] = 0 if request.POST[f'{rollno}_{cono}'] == '' else request.POST[f'{rollno}_{cono}']
+                else:
+                    for qno, qval in coval.items():
+                        temp = 0
+                        for marks in qval.keys():
+                            table_dict[rollno][cono][qno][marks] = 0 if request.POST[f'{rollno}_{cono}_{qno}_{temp}'] == '' else int(request.POST[f'{rollno}_{cono}_{qno}_{temp}'])
+                            temp+=1
 
         for co, marks in table.max_marks[field].items():
             table.max_marks[field][co] = int(request.POST[f'max_{co}'])
+      
         try:
             table.save()
             messages.info(request, 'Table Updated!')
         except Exception as e: 
+            messages.info(request, e)
             print(e)
         return redirect('sessional-table-edit', pk=pk, field=field)
     
@@ -204,14 +211,18 @@ def test_pdf(request, pk):
 
     elif field == 'ant':
         table_dict = table.assignment_tutorial
+        table_header.append([f"CO{x.number}" for x in cos_all])
+        table_body = table_dict
+
     
-    table_body = {}
-    for key, value in table_dict.items():
-        table_body[key] = {}
-        for ke, val in value.items():
-            table_body[key][ke] = {}
-            for k, v in val.items():
-                table_body[key][ke][k] = v.values()
+    if field != 'ant':
+        table_body = {}
+        for key, value in table_dict.items():
+            table_body[key] = {}
+            for ke, val in value.items():
+                table_body[key][ke] = {}
+                for k, v in val.items():
+                    table_body[key][ke][k] = v.values()
     
 
     data['header'], data['body'] = table_header, table_body
@@ -271,6 +282,7 @@ def test_pdf(request, pk):
         'table_subject': table.subject,
         'table_department': table.faculty.department,
         'ques_count': ques_count,
+        'field': field,
         # 'co_attainment': co_attainment,
         # 'split_value': split_value,
 

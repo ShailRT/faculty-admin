@@ -64,6 +64,11 @@
       <thead>
         <tr>
           <th scope="col" >{{ data.header.0 }}</th>
+          {% if field == 'ant' %}
+                    {% for head in data.header.1 %}
+                    <th>{{head}}</th>
+                    {% endfor %}
+          {% else %}
           <th scope="col" style="width:40px;">CO</th>
           {% for header in data.header.1 %}
             <th>
@@ -83,9 +88,22 @@
               </table>
             </th>
           {% endfor %}
+          {% endif %}
         </tr>
       </thead>
       <tbody>
+        {% if field == 'ant' %}
+          {% for rno, rvalue in data.body.items %}
+          <tr>
+            <th>{{rno}}</th>
+            {% for co, coval in rvalue.items %}
+              <th>
+                {{coval}}
+              </th>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        {% else %}
         {% for tbkey, tbvalue in data.body.items %}
         <tr>
           <th>
@@ -113,6 +131,7 @@
           </th>
         </tr>
         {% endfor %}
+        {% endif %}
       </tbody>
     </table>
     

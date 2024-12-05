@@ -16,7 +16,7 @@ class SessionStudentCreateForm(forms.ModelForm):
 class CreateStudentInfoForm(forms.ModelForm):
     class Meta:
         model = StudentInfo
-        fields = ['university_roll_no', 'first_name', 'last_name']
+        fields = ['university_roll_no', 'admission_roll_no', 'first_name', 'last_name']
         
 
 class ExitSurveyCreateForm(forms.ModelForm):

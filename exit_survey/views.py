@@ -132,6 +132,7 @@ def view_student(request, pk):
         student = StudentInfo.objects.filter(university_roll_no=request.POST['university_roll_no'])
         form = CreateStudentInfoForm(request.POST)
         if form.is_valid():
+            print("form data /n", form.data)
             form = form.save(commit=False)
             co_response, final_marks = {}, {}
 
@@ -160,7 +161,6 @@ def view_student(request, pk):
                     table.put[key][student.university_roll_no] = ""
                 for key in table.assignment_tutorial.keys():
                     table.assignment_tutorial[key][student.university_roll_no] = ""
-                print('table', table.ct1)
                 table.save()
             
             messages.info(request, 'Student added')
@@ -182,6 +182,7 @@ def view_student(request, pk):
                 print('table', table.ct1)
                 table.save()
         else:
+            messages.info(request, form.errors)
             print(form.errors)
         return redirect("view-student", pk=pk)
     
@@ -284,14 +285,13 @@ def student_csv(request):
             stu_count = 0
             for row in reader:
                 stu_count+=1
-                university_roll_no, first_name, last_name = row
+                university_roll_no, admission_roll_no, first_name, last_name = row
                 student = StudentInfo.objects.filter(university_roll_no=university_roll_no)
                 if len(student)>0 and student.first() not in session.students.all():
                     session.students.add(student.first())
                     session.save()
                 else:
-                    student = StudentInfo.objects.create(university_roll_no=university_roll_no, first_name=first_name, last_name=last_name)
-                    student.save()
+                    StudentInfo.objects.create(university_roll_no=university_roll_no, admission_roll_no=admission_roll_no,  first_name=first_name, last_name=last_name)
                     new_student = StudentInfo.objects.filter(university_roll_no=university_roll_no).first()
                     session = SessionStudent.objects.filter(uuid=request.POST['session']).first()
                     session.students.add(new_student)
@@ -299,6 +299,7 @@ def student_csv(request):
             messages.info(request, f'{stu_count} student added')
         except Exception as e:
             print("upload student failed with ", e)
+            messages.info(request, e)
 
 
         return redirect("view-student", pk=session.uuid)

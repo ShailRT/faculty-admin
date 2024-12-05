@@ -7,6 +7,7 @@ department_choices = ( ('IT', 'IT' ), ('CS', 'CS'), ('AI/ML', 'AI/ML'), ('IOT', 
 
 class StudentInfo(models.Model):
     university_roll_no = models.CharField(max_length=120, unique=True)
+    admission_roll_no = models.CharField(max_length=120, null=True, blank=True)
     first_name = models.CharField(max_length=120)
     last_name = models.CharField(max_length=120)
     co_response = models.JSONField(blank=True, null=True, default=dict)

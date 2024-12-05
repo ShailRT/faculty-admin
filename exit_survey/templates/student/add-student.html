@@ -52,6 +52,18 @@
                              id="uni_rollno" />
                     </div>
                     <div class="col-6">
+                      <label for="id_session" class="form-label">Admission Roll No:</label>
+                      <input type="text"
+                             class="form-control"
+                             name="admission_roll_no"
+                             maxlength="13"
+                             required=""
+                             id="adm_rollno" />
+                    </div>
+                    
+                  </div>
+                  <div class="row mb-2">
+                    <div class="col-6">
                       <label for="id_session" class="form-label">First Name:</label>
                       <input type="text"
                              class="form-control"
@@ -59,8 +71,6 @@
                              required=""
                              id="first_name" />
                     </div>
-                  </div>
-                  <div class="row mb-2">
                     <div class="col-6">
                       <label for="last_name" class="form-label">Last Name:</label>
                       <input type="text"
@@ -88,13 +98,15 @@
             <div class="card-body">
               <table class="table table-striped-columns table-bordered pr-2">
                 <tr>
-                  <th>Roll No.</th>
+                  <th>Uni Roll No.</th>
+                  <th>Adm Roll No.</th>
                   <th>First Name</th>
                   <th>Last Name</th>
                 </tr>
                 {% for student in session.students.all %}
                   <tr>
                     <td>{{ student.university_roll_no }}</td>
+                    <td>{{ student.admission_roll_no }}</td>
                     <td>{{ student.first_name }}</td>
                     <td>{{ student.last_name }}</td>
                   </tr>

@@ -164,6 +164,7 @@ def co_po_table(request):
                     }
         
         context = {
+            'co_list': co_list,
             'co_render_list': co_render_list,
             "co_po_header": co_po_header,
             "subjects": subjects,

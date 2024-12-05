@@ -18,7 +18,7 @@
                                 <form method="GET" class="row g-3">
                                     <div class="col-md-4">
                                       <label for="inputState" class="form-label">Subject:</label><br>
-                                      <select data-live-search="true" id="inputState" name="subject_uuid" class="form-select js-select border mb-3" required>
+                                      <select data-live-search="true" id="inputState" name="subject_uuid" class="form-select selectpicker border mb-3 w-100"> required>
                                         <option value="{% if selected_subject %}{{selected_subject.uuid}}{% endif %}" selected >
                                             {% if selected_subject %}{{selected_subject.code}}{% else %}Choose...{% endif %}</option>
                                         {% for subject in subjects %}
@@ -35,7 +35,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <label for="inputState" class="form-label">Session:</label><br>
-                                        <select data-live-search="true" id="inputState" name="session_uuid" class="form-select js-select border mb-3" required>
+                                        <select data-live-search="true" id="inputState" name="session_uuid" class="form-select selectpicker border mb-3 w-100"> required>
                                           <option value="{% if selected_session %}{{selected_session.uuid}}{% endif %}" selected >
                                               {% if selected_session %}{{selected_session.session}}-{{selected_session.department}}{% else %}Choose...{% endif %}</option>
                                           {% for session in session_list %}
@@ -52,7 +52,7 @@
                                       </div>
                                     <div class="col-md-4">
                                         <label for="inputState" class="form-label">Department:</label><br>
-                                        <select data-live-search="true" id="inputState" name="selected_department" class="form-select js-select border mb-3" required>
+                                        <select data-live-search="true" id="inputState" name="selected_department" class="form-select selectpicker border mb-3 w-100"> required>
                                           <option value="{% if selected_department %}{{selected_department}}{% endif %}" selected>
                                               {% if selected_department %}{{selected_department}}{% else %}Choose...{% endif %}</option>
                                           {% for department in departments %}
@@ -79,6 +79,7 @@
                 </div>
             </div>
             {% if selected_subject %}
+            
             <div class="container col-md-12">
                 <div class="row">
                     <div class="col-12 col-md-12 mb-4">
@@ -166,6 +167,28 @@
                                         </a>
                                     {% endif %}
                                 
+                                
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="container col-md-12">
+                <div class="row">
+                    <div class="col-12 col-md-12 mb-4">
+                        <div class="card shadow">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Course Outcomes ({{selected_subject.code}})</h6>
+                            </div>
+                            <div class="card-body" style="overflow: auto;">
+                                
+                                <ul class="list-group">
+                                    {% for co in co_list %}
+                                    <li class="list-group-item">CO{{co.number}} - {{co.message}}</li>
+                                    {% endfor %}
+                                  </ul>
                                 
                             </div>
                         </div>

@@ -1,5 +1,6 @@
-{% extends 'base-dash.html' %} {% load custom_tags %} {% block title %} {{
-subject.title|capfirst }} Table {% endblock title %} {% block content %}
+{% extends 'base-dash.html' %} {% load custom_tags %}
+{% block title %} {{subject.title|capfirst }} Table {% endblock title %}
+{% block content %}
 <!-- Begin Page Content -->
 <div class="container-fluid">
   <!-- Page Heading -->
@@ -34,13 +35,18 @@ subject.title|capfirst }} Table {% endblock title %} {% block content %}
                 <thead>
                   <tr>
                     <th scope="col" rowspan="2">{{ table_header.0 }}</th>
+                    {% if field == 'ant' %}
+                    {% for head in table_header.1 %}
+                    <th>{{head}}</th>
+                    {% endfor %}
+                    {% else %}
                     <th scope="col" rowspan="2">CO</th>
                     {% for header in table_header.1 %}
                       <th>
                         <table class="w-100">
                           {% for key, value in header.items %}
                           <tr>
-                            <th colspan="5">{{key}}</th>
+                            <th colspan="{% if field == 'put' %}7{% else %}5{%endif %}">{{key}}</th>
                           </tr>
                           <tr>
                             {% for val in value %}
@@ -51,36 +57,51 @@ subject.title|capfirst }} Table {% endblock title %} {% block content %}
                         </table>
                       </th>
                     {% endfor %}
+                    {% endif %}
                   </tr>
                 </thead>
                 <tbody>
-                  {% for tbkey, tbvalue in table_body.items %}
-                  <tr>
-                    <th>
-                      {{tbkey}}
-                    </th>
-                    <th colspan="5">
-                      <table class="w-100">
-                        {% for cokey, coval in tbvalue.items %}
-                        <tr>
-                          <td>
-                            {{cokey}}
-                          </td>
-                          {% for qno, qval in coval.items %}
-                            {% for marks in qval %}
-                          <td>
-                            <input class="form-control" name="{{tbkey}}_{{ cokey }}_{{qno}}_{{ forloop.counter0 }}" type="number" value="{{marks}}"
-                            min="0" max="30" />
-                           
-                          </td>
+                  {% if field == 'ant' %}
+                    {% for rno, rvalue in table_body.items %}
+                    <tr>
+                      <th>{{rno}}</th>
+                      {% for co, coval in rvalue.items %}
+                        <th>
+                          <input class="form-control" name="{{rno}}_{{co}}" type="number" value="{{coval}}"
+                              min="0" max="30" />
+                        </th>
+                      {% endfor %}
+                    </tr>
+                    {% endfor %}
+                  {% else %}
+                    {% for tbkey, tbvalue in table_body.items %}
+                    <tr>
+                      <th>
+                        {{tbkey}}
+                      </th>
+                      <th colspan="{% if field == 'put' %}8{% else %}4{%endif %}">
+                        <table class="w-100">
+                          {% for cokey, coval in tbvalue.items %}
+                          <tr>
+                            <td>
+                              {{cokey}}
+                            </td>
+                            {% for qno, qval in coval.items %}
+                              {% for marks in qval %}
+                            <td>
+                              <input class="form-control" name="{{tbkey}}_{{ cokey }}_{{qno}}_{{ forloop.counter0 }}" type="number" value="{{marks}}"
+                              min="0" max="30" />
+                            
+                            </td>
+                              {% endfor %}
                             {% endfor %}
+                          </tr>
                           {% endfor %}
-                        </tr>
-                        {% endfor %}
-                      </table>
-                    </th>
-                  </tr>
-                  {% endfor %}
+                        </table>
+                      </th>
+                    </tr>
+                    {% endfor %}
+                  {% endif %}
                 </tbody>
               </table>
 
