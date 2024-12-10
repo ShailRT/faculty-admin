@@ -277,15 +277,17 @@ def student_csv(request):
         # Decode the file
         decoded_file = csv_file.read().decode('utf-8').splitlines()
         reader = csv.reader(decoded_file) 
-
+        next(reader)
         # Iterate over the rows in the CSV file and create Product instances
         session = SessionStudent.objects.filter(uuid=request.POST['session']).first()
 
         try:
             stu_count = 0
             for row in reader:
+                
                 stu_count+=1
-                university_roll_no, admission_roll_no, first_name, last_name = row
+                admission_roll_no, university_roll_no,  first_name, last_name = row
+                print(admission_roll_no, university_roll_no,  first_name, last_name)
                 student = StudentInfo.objects.filter(university_roll_no=university_roll_no)
                 if len(student)>0 and student.first() not in session.students.all():
                     session.students.add(student.first())
